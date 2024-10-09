@@ -1,1 +1,10 @@
-git
+Tareas:
+Gabi:
+-
+-
+Mati:
+-
+-
+Luxio:
+-
+-
