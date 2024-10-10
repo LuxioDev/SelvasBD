@@ -27,7 +27,7 @@ def mostrar_movimientos(tree):
         cursor = conexion.cursor()
         try:
             sucursal_usuario = usuario_actual.usuario_actual[3]
-            consulta = "SELECT id_movimiento, id_producto, id_sucursal, tipo_movimiento, cantidad, descripcion FROM historial_movimientos WHERE id_sucursal = %s"
+            consulta = "SELECT id_movimiento, id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion FROM historial_movimientos WHERE id_sucursal = %s"
             cursor.execute(consulta, (sucursal_usuario,))  # Pasar el parámetro como una tupla
             movimientos = cursor.fetchall()
 
@@ -94,8 +94,8 @@ def historial_movimientos():
     root.title("Historial de movimientos")
     root.resizable(False, False)
 
-    altura_ventana = 500
-    ancho_ventana = 600
+    altura_ventana = 600
+    ancho_ventana = 800
 
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
@@ -106,21 +106,23 @@ def historial_movimientos():
     root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
 
     # Definir el Treeview para mostrar los movimientos
-    columnas = ("id_producto", "id_sucursal", "tipo_movimiento", "cantidad", "descripcion")
+    columnas = ("id_producto", "id_sucursal", "tipo_movimiento", "cantidad", "descripcion", "precio")
     tree = ttk.Treeview(root, columns=columnas, show="headings")
 
     # Definir los encabezados de las columnas
-    tree.heading("id_producto", text="ID Producto")
-    tree.heading("id_sucursal", text="ID Sucursal")
+    tree.heading("id_producto", text="Producto")
+    tree.heading("id_sucursal", text="Sucursal")
     tree.heading("tipo_movimiento", text="Tipo de Movimiento")
     tree.heading("cantidad", text="Cantidad")
     tree.heading("descripcion", text="Descripción")
+    tree.heading("precio", text="Precio")
 
     tree.column("id_producto", width=100, anchor="center")
     tree.column("id_sucursal", width=100, anchor="center")
     tree.column("tipo_movimiento", width=150, anchor="center")
     tree.column("cantidad", width=80, anchor="center")
     tree.column("descripcion", width=170, anchor="center")
+    tree.column("precio", width=80, anchor="center")
 
     tree.grid(row=1, column=0, columnspan=4, padx=10, pady=10)
 
