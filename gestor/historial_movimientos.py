@@ -41,7 +41,7 @@ def mostrar_movimientos(tree):
                 tree.insert("", "end", iid=movimiento[0], values=movimiento[1:])
 
         except mysql.connector.Error as err:
-            messagebox.showerror("Error", f"No se pudo obtener el historial de compras: {err}")
+            messagebox.showerror("Error", f"No se pudo obtener el historial de movimientos: {err}")
         finally:
             cursor.close()
             conexion.close()
@@ -67,7 +67,7 @@ def mostrar_detalle_movimiento(root, tree):
 
                     # Crear ventana emergente con los detalles de la compra
                     ventana_detalle = tk.Toplevel(root)
-                    ventana_detalle.title("Detalles de la compra")
+                    ventana_detalle.title("Detalles del movimiento")
 
                     label_fecha = tk.Label(ventana_detalle, text="Fecha exacta:", font=("Helvetica", 12))
                     label_fecha.grid(row=0, column=0, padx=10, pady=10)
@@ -82,16 +82,16 @@ def mostrar_detalle_movimiento(root, tree):
                     label_descripcion_valor.grid(row=1, column=1, padx=10, pady=10)
 
             except mysql.connector.Error as err:
-                messagebox.showerror("Error", f"No se pudo obtener los detalles de la compra: {err}")
+                messagebox.showerror("Error", f"No se pudo obtener los detalles del movimiento: {err}")
             finally:
                 cursor.close()
                 conexion.close()
 
 
 # Función principal que define la interfaz gráfica
-def historial_compras():
+def historial_movimientos():
     root = tk.Tk()
-    root.title("Historial de Compras")
+    root.title("Historial de movimientos")
     root.resizable(False, False)
 
     altura_ventana = 500
@@ -134,7 +134,7 @@ def historial_compras():
     volver_btn.grid(row=2, column=3, sticky="w", padx=10, pady=10)
 
     # Título
-    titulo_label = tk.Label(root, text="Historial de compras", font=("Helvetica", 16))
+    titulo_label = tk.Label(root, text="Historial de movimientos", font=("Helvetica", 16))
     titulo_label.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
 
     mas_detalle_btn = tk.Button(root, text="Más detalles", bg="White", font=("Helvetica", 12), command=lambda: mostrar_detalle_movimiento(root, tree))
@@ -145,4 +145,4 @@ def historial_compras():
 
 
 if __name__ == "__main__":
-    historial_compras()
+    historial_movimientos()

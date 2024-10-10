@@ -31,6 +31,11 @@ def menu_principal():
         from gestor.gestion_stock import gestion_stock
         gestion_stock()
 
+    def historial_movimientos():
+        root.destroy()
+        from gestor.historial_movimientos import historial_movimientos
+        historial_movimientos()
+
     # Función para cerrar sesión
     def cerrar_sesion():
         root.destroy()
@@ -46,7 +51,7 @@ def menu_principal():
     gestor_stock_btn = tk.Button(root, text="Gestion de stock", bg="White", font=("Helvetica", 12), width=15, command=gestionar_stock)
     gestor_stock_btn.grid(row=4, column=0, padx=10, pady=10)
 
-    ventas_btn = tk.Button(root, text="Historial de ventas", bg="White", font=("Helvetica", 12), width=15)
+    ventas_btn = tk.Button(root, text="Historial de movimientos", bg="White", font=("Helvetica", 12), width=15, command=historial_movimientos)
     ventas_btn.grid(row=4, column=1, padx=10, pady=10)
 
     gestor_usuario_btn = tk.Button(root, text="Gestion de usuarios", bg="White", font=("Helvetica", 12), width=15)
