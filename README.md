@@ -1,4 +1,3 @@
-Tareas:
 Gabi:
 -
 -
@@ -6,5 +5,5 @@ Mati:
 -
 -
 Luxio:
--Completar historia_movimientos.py
+- Completar historia_movimientos.py
 -
