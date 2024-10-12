@@ -21,23 +21,23 @@ def conectar_bd():
 
     # Función para obtener y mostrar productos y cantidades en el Treeview.
 def actualizar_lista_stock(tree):
-
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
         try:
-            # Consulta para obtener productos y stock
-            cursor.execute("SELECT p.DESCRIPCION, s.CANTIDAD FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
-            # Meter todos los productos en una lista
+            # Consulta para obtener la descripción, cantidad y precio de cada producto
+            cursor.execute("SELECT p.DESCRIPCION, s.CANTIDAD, p.PRECIO FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
             resultados = cursor.fetchall()
 
             # Limpiar el Treeview antes de insertar nuevos datos
             for item in tree.get_children():
                 tree.delete(item)
 
-            # Insertar los productos y cantidades en el Treeview
-            for descripcion, cantidad in resultados:
-                tree.insert("", tk.END, values=(descripcion, cantidad))
+            # Insertar los productos, cantidades (con estado) y precios en el Treeview
+            for descripcion, cantidad, precio in resultados:
+                estado = " (Disponible)" if cantidad > 0 else " (Agotado)"
+                cantidad_con_estado = f"{cantidad}{estado}"  # Concatenar cantidad con el estado
+                tree.insert("", tk.END, values=(descripcion, cantidad_con_estado, f"${precio:.2f}"))  # Mostrar el precio con formato
 
         except mysql.connector.Error as err:
             messagebox.showerror("Error", f"No se pudo recuperar la información del stock: {err}")
@@ -98,7 +98,7 @@ def anadir_stock_producto(producto, cantidad_anadir):
 def ventana_anadir_stock():
     root = tk.Tk()
     root.title("Gestión de Stock - Añadir Stock")
-    root.geometry("600x400")
+    root.geometry("700x400")  # Ajustar el tamaño para acomodar la columna de precios
 
     def volver_menu_principal():
         root.destroy()
@@ -108,10 +108,11 @@ def ventana_anadir_stock():
     volver_btn = tk.Button(root, text="Volver", bg="White", font=("Helvetica", 12), command=volver_menu_principal)
     volver_btn.grid(row=2, column=2, stick="w", padx=10, pady=10)
 
-    # Treeview para mostrar los productos y sus cantidades
-    tree = ttk.Treeview(root, columns=("Producto", "Cantidad"), show='headings', height=10)
+    # Treeview para mostrar los productos, cantidades y precios
+    tree = ttk.Treeview(root, columns=("Producto", "Cantidad", "Precio"), show='headings', height=10)
     tree.heading("Producto", text="Producto")
-    tree.heading("Cantidad", text="Cantidad")
+    tree.heading("Cantidad", text="Cantidad")  # Solo se mostrará "Cantidad" en el encabezado
+    tree.heading("Precio", text="Precio")      # Nueva columna para mostrar el precio
     tree.grid(row=0, column=0, columnspan=3, padx=20, pady=20)
 
     # Botón para actualizar la lista de productos

@@ -24,14 +24,19 @@ def actualizar_lista_stock(tree):
     if conexion:
         cursor = conexion.cursor()
         try:
-            cursor.execute("SELECT p.DESCRIPCION, s.CANTIDAD FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
+            # Consulta para obtener la descripción, cantidad y precio de cada producto
+            cursor.execute("SELECT p.DESCRIPCION, s.CANTIDAD, p.PRECIO FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
             resultados = cursor.fetchall()
 
+            # Limpiar el Treeview antes de insertar nuevos datos
             for item in tree.get_children():
                 tree.delete(item)
 
-            for descripcion, cantidad in resultados:
-                tree.insert("", tk.END, values=(descripcion, cantidad))
+            # Insertar los productos, cantidades (con estado) y precios en el Treeview
+            for descripcion, cantidad, precio in resultados:
+                estado = " (Disponible)" if cantidad > 0 else " (Agotado)"
+                cantidad_con_estado = f"{cantidad}{estado}"
+                tree.insert("", tk.END, values=(descripcion, cantidad_con_estado, f"${precio:.2f}"))
 
         except mysql.connector.Error as err:
             messagebox.showerror("Error", f"No se pudo recuperar la información del stock: {err}")
@@ -106,8 +111,10 @@ def modificar_stock_producto(producto, cantidad_anadir):
 def ventana_comprar_productos():
     root = tk.Tk()
     root.title("Compra de productos")
+    root.resizable(False, False)
+
     altura_ventana = 400
-    ancho_ventana = 450
+    ancho_ventana = 750
 
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
@@ -125,9 +132,11 @@ def ventana_comprar_productos():
     volver_btn = tk.Button(root, text="Volver", bg="White", font=("Helvetica", 12), command=volver_menu_usuario)
     volver_btn.grid(row=2, column=2, stick="w", padx=10, pady=10)
 
-    tree = ttk.Treeview(root, columns=("Producto", "Cantidad"), show='headings', height=10)
+    # Treeview con solo tres columnas: Producto, Cantidad (que incluirá el estado), Precio
+    tree = ttk.Treeview(root, columns=("Producto", "Cantidad", "Precio"), show='headings', height=10)
     tree.heading("Producto", text="Producto")
-    tree.heading("Cantidad", text="Cantidad")
+    tree.heading("Cantidad", text="Cantidad")  # Aquí también aparecerá el estado
+    tree.heading("Precio", text="Precio")
     tree.grid(row=0, column=0, columnspan=3, padx=20, pady=20)
 
     actualizar_btn = tk.Button(root, text="Actualizar Lista", command=lambda: actualizar_lista_stock(tree))

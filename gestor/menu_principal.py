@@ -51,7 +51,7 @@ def menu_principal():
     gestor_stock_btn = tk.Button(root, text="Gestion de stock", bg="White", font=("Helvetica", 12), width=15, command=gestionar_stock)
     gestor_stock_btn.grid(row=4, column=0, padx=10, pady=10)
 
-    ventas_btn = tk.Button(root, text="Historial de movimientos", bg="White", font=("Helvetica", 12), width=15, command=historial_movimientos)
+    ventas_btn = tk.Button(root, text="Movimientos", bg="White", font=("Helvetica", 12), width=15, command=historial_movimientos)
     ventas_btn.grid(row=4, column=1, padx=10, pady=10)
 
     gestor_usuario_btn = tk.Button(root, text="Gestion de usuarios", bg="White", font=("Helvetica", 12), width=15)
