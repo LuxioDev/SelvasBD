@@ -5,7 +5,7 @@ import mysql.connector
 import usuario_actual
 
 
-# Función para conectar con la base de datos
+# Se realiza la conexion con la base de datos
 def conectar_bd():
     try:
         conexion = mysql.connector.connect(
@@ -19,7 +19,7 @@ def conectar_bd():
         messagebox.showerror("Error de conexión", f"No se pudo conectar a la base de datos: {err}")
         return None
 
- 
+
 # Función para mostrar los movimientos del usuario en el Treeview
 def mostrar_movimientos(tree):
     conexion = conectar_bd()
@@ -27,7 +27,7 @@ def mostrar_movimientos(tree):
         cursor = conexion.cursor()
         try:
             id_usuario = usuario_actual.usuario_actual[0]
-            consulta = "SELECT id_movimiento, id_producto, id_sucursal, tipo_movimiento, cantidad, descripcion FROM historial_movimientos WHERE id_usuario = %s"
+            consulta = "SELECT m.id_movimiento, p.descripcion, DATE_FORMAT(m.fecha, '%d/%m') as fecha_movimiento, m.cantidad, (m.cantidad * p.precio) as total FROM historial_movimientos m JOIN productos p ON m.id_producto = p.id_producto WHERE m.id_usuario = %s"
             cursor.execute(consulta, (id_usuario,))  # Pasar el parámetro como una tupla
             movimientos = cursor.fetchall()
 
@@ -37,7 +37,7 @@ def mostrar_movimientos(tree):
 
             # Insertar los datos obtenidos en el Treeview
             for movimiento in movimientos:
-                # El primer campo ahora es id_movimiento, lo almacenamos como "iid"
+                # El primer campo es id_movimiento, lo almacenamos como "iid"
                 tree.insert("", "end", iid=movimiento[0], values=movimiento[1:])
 
         except mysql.connector.Error as err:
@@ -78,7 +78,8 @@ def mostrar_detalle_compra(root, tree):
                     label_descripcion = tk.Label(ventana_detalle, text="Descripción completa:", font=("Helvetica", 12))
                     label_descripcion.grid(row=1, column=0, padx=10, pady=10)
 
-                    label_descripcion_valor = tk.Label(ventana_detalle, text=descripcion_completa, font=("Helvetica", 12), wraplength=400)
+                    label_descripcion_valor = tk.Label(ventana_detalle, text=descripcion_completa,
+                                                       font=("Helvetica", 12), wraplength=400)
                     label_descripcion_valor.grid(row=1, column=1, padx=10, pady=10)
 
             except mysql.connector.Error as err:
@@ -94,8 +95,8 @@ def historial_compras():
     root.title("Historial de Compras")
     root.resizable(False, False)
 
-    altura_ventana = 500
-    ancho_ventana = 600
+    altura_ventana = 350
+    ancho_ventana = 450
 
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
@@ -106,21 +107,19 @@ def historial_compras():
     root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
 
     # Definir el Treeview para mostrar los movimientos
-    columnas = ("id_producto", "id_sucursal", "tipo_movimiento", "cantidad", "descripcion")
+    columnas = ("descripcion_producto", "fecha_movimiento", "cantidad", "total")
     tree = ttk.Treeview(root, columns=columnas, show="headings")
 
     # Definir los encabezados de las columnas
-    tree.heading("id_producto", text="ID Producto")
-    tree.heading("id_sucursal", text="ID Sucursal")
-    tree.heading("tipo_movimiento", text="Tipo de Movimiento")
+    tree.heading("descripcion_producto", text="Producto")
+    tree.heading("fecha_movimiento", text="Fecha (Día/Mes)")
     tree.heading("cantidad", text="Cantidad")
-    tree.heading("descripcion", text="Descripción")
+    tree.heading("total", text="Total")
 
-    tree.column("id_producto", width=100, anchor="center")
-    tree.column("id_sucursal", width=100, anchor="center")
-    tree.column("tipo_movimiento", width=150, anchor="center")
+    tree.column("descripcion_producto", width=150, anchor="center")
+    tree.column("fecha_movimiento", width=100, anchor="center")
     tree.column("cantidad", width=80, anchor="center")
-    tree.column("descripcion", width=170, anchor="center")
+    tree.column("total", width=100, anchor="center")
 
     tree.grid(row=1, column=0, columnspan=4, padx=10, pady=10)
 
@@ -137,8 +136,11 @@ def historial_compras():
     titulo_label = tk.Label(root, text="Historial de compras", font=("Helvetica", 16))
     titulo_label.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
 
-    mas_detalle_btn = tk.Button(root, text="Más detalles", bg="White", font=("Helvetica", 12), command=lambda: mostrar_detalle_compra(root, tree))
+    mas_detalle_btn = tk.Button(root, text="Más detalles", bg="White", font=("Helvetica", 12),
+                                command=lambda: mostrar_detalle_compra(root, tree))
     mas_detalle_btn.grid(row=2, column=2, sticky="w", padx=10, pady=10)
+
+    # Mostrar movimientos en el Treeview
     mostrar_movimientos(tree)
 
     root.mainloop()
