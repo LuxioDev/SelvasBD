@@ -19,7 +19,7 @@ def conectar_bd():
         messagebox.showerror("Error de conexión", f"No se pudo conectar a la base de datos: {err}")
         return None
 
- 
+
 # Función para mostrar los movimientos del usuario en el Treeview
 def mostrar_movimientos(tree):
     conexion = conectar_bd()
@@ -27,7 +27,12 @@ def mostrar_movimientos(tree):
         cursor = conexion.cursor()
         try:
             sucursal_usuario = usuario_actual.usuario_actual[3]
-            consulta = "SELECT id_movimiento, id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion FROM historial_movimientos WHERE id_sucursal = %s"
+            consulta = """
+            SELECT hm.id_movimiento, p.descripcion AS nombre_producto, hm.id_usuario, hm.tipo_movimiento, hm.cantidad, hm.descripcion 
+            FROM historial_movimientos hm
+            JOIN productos p ON hm.id_producto = p.id_producto
+            WHERE hm.id_sucursal = %s
+            """
             cursor.execute(consulta, (sucursal_usuario,))  # Pasar el parámetro como una tupla
             movimientos = cursor.fetchall()
 
@@ -35,8 +40,11 @@ def mostrar_movimientos(tree):
             for row in tree.get_children():
                 tree.delete(row)
 
+            # Ordenar los movimientos por id_movimiento de mayor a menor
+            movimientos_ordenados = sorted(movimientos, key=lambda x: x[0], reverse=True)
+
             # Insertar los datos obtenidos en el Treeview
-            for movimiento in movimientos:
+            for movimiento in movimientos_ordenados:
                 # El primer campo ahora es id_movimiento, lo almacenamos como "iid"
                 tree.insert("", "end", iid=movimiento[0], values=movimiento[1:])
 
@@ -106,19 +114,17 @@ def historial_movimientos():
     root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
 
     # Definir el Treeview para mostrar los movimientos
-    columnas = ("id_producto", "id_sucursal", "tipo_movimiento", "cantidad", "descripcion", "precio")
+    columnas = ("producto", "tipo_movimiento", "cantidad", "descripcion", "precio")
     tree = ttk.Treeview(root, columns=columnas, show="headings")
 
     # Definir los encabezados de las columnas
-    tree.heading("id_producto", text="Producto")
-    tree.heading("id_sucursal", text="Sucursal")
+    tree.heading("producto", text="Producto")
     tree.heading("tipo_movimiento", text="Tipo de Movimiento")
     tree.heading("cantidad", text="Cantidad")
     tree.heading("descripcion", text="Descripción")
     tree.heading("precio", text="Precio")
 
-    tree.column("id_producto", width=100, anchor="center")
-    tree.column("id_sucursal", width=100, anchor="center")
+    tree.column("producto", width=100, anchor="center")
     tree.column("tipo_movimiento", width=150, anchor="center")
     tree.column("cantidad", width=80, anchor="center")
     tree.column("descripcion", width=170, anchor="center")
@@ -128,9 +134,9 @@ def historial_movimientos():
 
     # Botón para volver al menú del usuario
     def volver_menu_usuario():
-        from usuario.menu_usuario import menu_usuario
+        from gestor.menu_principal import menu_principal
         root.destroy()
-        menu_usuario()
+        menu_principal()
 
     volver_btn = tk.Button(root, text="Volver", bg="White", font=("Helvetica", 12), command=volver_menu_usuario)
     volver_btn.grid(row=2, column=3, sticky="w", padx=10, pady=10)
