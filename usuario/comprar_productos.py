@@ -5,6 +5,7 @@ import mysql.connector
 import usuario_actual
 
 
+# Se realiza la conexion con la base de datos
 def conectar_bd():
     try:
         conexion = mysql.connector.connect(
@@ -19,6 +20,7 @@ def conectar_bd():
         return None
 
 
+# Se actualiza la lista de productos con sus atributos
 def actualizar_lista_stock(tree):
     conexion = conectar_bd()
     if conexion:
@@ -28,11 +30,11 @@ def actualizar_lista_stock(tree):
             cursor.execute("SELECT p.DESCRIPCION, s.CANTIDAD, p.PRECIO FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
             resultados = cursor.fetchall()
 
-            # Limpiar el Treeview antes de insertar nuevos datos
+            # Limpiar la lista antes de insertar nuevos datos
             for item in tree.get_children():
                 tree.delete(item)
 
-            # Insertar los productos, cantidades (con estado) y precios en el Treeview
+            # Insertar los productos, cantidades (con estado) y precios en la lista
             for descripcion, cantidad, precio in resultados:
                 estado = " (Disponible)" if cantidad > 0 else " (Agotado)"
                 cantidad_con_estado = f"{cantidad}{estado}"
@@ -44,17 +46,13 @@ def actualizar_lista_stock(tree):
             cursor.close()
             conexion.close()
 
-
+# Al realizar un movimiento en la base de datos se guardan los datos respectivos del movimiento
 def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion):
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
         try:
-            consulta = """
-            INSERT INTO historial_movimientos 
-            (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion) 
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """
+            consulta = "INSERT INTO historial_movimientos (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion) VALUES (%s, %s, %s, %s, %s, %s)"
             cursor.execute(consulta, (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion))
             conexion.commit()
         except mysql.connector.Error as err:
@@ -83,16 +81,13 @@ def modificar_stock_producto(producto, cantidad_anadir):
                     consulta = "UPDATE stock s JOIN productos p ON s.ID_PRODUCTO = p.ID_PRODUCTO SET s.CANTIDAD = s.CANTIDAD + %s WHERE p.DESCRIPCION = %s"
                     cursor.execute(consulta, (cantidad_anadir, producto))
 
-                    cursor.execute(
-                        "SELECT p.ID_PRODUCTO, s.ID_SUCURSAL FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO WHERE p.DESCRIPCION = %s",
-                        (producto,))
+                    cursor.execute("SELECT p.ID_PRODUCTO, s.ID_SUCURSAL FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO WHERE p.DESCRIPCION = %s",(producto,))
                     resultado = cursor.fetchone()
                     id_usuario = usuario_actual.usuario_actual[0]
                     id_producto, id_sucursal = resultado
 
                     # Registrar el movimiento en el historial
-                    registrar_movimiento(id_producto, id_sucursal, id_usuario, 'salida' if cantidad_anadir < 0 else 'entrada', cantidad_anadir,
-                                         f"Se modificó el stock en {cantidad_anadir} unidades")
+                    registrar_movimiento(id_producto, id_sucursal, id_usuario, 'salida' if cantidad_anadir < 0 else 'entrada', -cantidad_anadir,f"Se modificó el stock en {-cantidad_anadir} unidades")
 
                     conexion.commit()
                     messagebox.showinfo("Éxito", f"Se ha comprado {-cantidad_anadir} unidades de '{producto}'")
@@ -107,7 +102,7 @@ def modificar_stock_producto(producto, cantidad_anadir):
             cursor.close()
             conexion.close()
 
-
+# Se crea la ventana para visualizar la lista
 def ventana_comprar_productos():
     root = tk.Tk()
     root.title("Compra de productos")
