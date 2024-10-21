@@ -55,6 +55,7 @@ def obtener_sucursal_cliente_id(id_usuario):
     if conexion:
         cursor = conexion.cursor()
         try:
+            #selecciona los valores de ID_SUCURSAL de la tabla sucursales donde el ID_USUARIO en la tabla usuarios coincide con el valor proporcionado, (INNER JOIN) para enlazar ambas tablas a través de ID_SUCURSAL
             consulta = "SELECT sucursales.ID_SUCURSAL FROM sucursales INNER JOIN usuarios ON sucursales.ID_SUCURSAL = usuarios.ID_SUCURSAL WHERE usuarios.ID_USUARIO = %s"
             cursor.execute(consulta, (id_usuario,))
             sucursal = cursor.fetchone()
