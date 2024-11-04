@@ -36,6 +36,11 @@ def menu_principal():
         from gestor.historial_movimientos import historial_movimientos
         historial_movimientos()
 
+    def usuarios():
+        root.destroy()
+        from admin.usuario_crear import crear_usuario
+        crear_usuario()
+
     # Función para cerrar sesión
     def cerrar_sesion():
         root.destroy()
@@ -54,7 +59,7 @@ def menu_principal():
     ventas_btn = tk.Button(root, text="Movimientos", bg="White", font=("Helvetica", 12), width=15, command=historial_movimientos)
     ventas_btn.grid(row=4, column=1, padx=10, pady=10)
 
-    gestor_usuario_btn = tk.Button(root, text="Gestion de usuarios", bg="White", font=("Helvetica", 12), width=15)
+    gestor_usuario_btn = tk.Button(root, text="Gestion de usuarios", bg="White", font=("Helvetica", 12), width=15, command=usuarios)
     gestor_usuario_btn.grid(row=4, column=2, padx=10, pady=10)
 
     root.mainloop()

@@ -104,16 +104,21 @@ def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, 
             conexion.close()
 
 # Función para añadir un producto
-def anadir_producto(producto, precio, id_categoria, id_proveedor, id_sucursal):
+def anadir_producto(producto, precio, precio_venta, id_categoria, id_proveedor, id_sucursal):
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
         try:
-            # Inserta el producto junto con la categoria, el proveedor y la sucursal
+            # Inserta el producto junto con la categoria, el proveedor y la sucursal en la tabla productos
             consulta = "INSERT INTO productos (DESCRIPCION, PRECIO, ID_CATEGORIA, ID_PROVEEDOR,ID_SUCURSAL) VALUES (%s, %s, %s, %s, %s)"
             cursor.execute(consulta, (producto, precio, id_categoria, id_proveedor, id_sucursal))
             id_producto = cursor.lastrowid  # Obtener el ID del producto recién insertado
 
+            # Inserta el producto en la tabla ventas con el precio de venta
+            consulta_venta = "INSERT INTO venta (ID_PRODUCTO, DESCRIPCION, PRECIO, ID_CATEGORIA, ID_PROVEEDOR, ID_SUCURSAL) VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(consulta_venta, (id_producto, producto, precio_venta, id_categoria, id_proveedor, id_sucursal))
+
+            # Commit de ambas transacciones
             conexion.commit()
 
             # Inserta un registro en la tabla stock con cantidad 0 para la sucursal seleccionada
@@ -125,12 +130,13 @@ def anadir_producto(producto, precio, id_categoria, id_proveedor, id_sucursal):
             registrar_movimiento(id_producto, id_sucursal, id_usuario, 'entrada', 0, "Producto nuevo añadido con stock inicial de 0")
 
             conexion.commit()
-            messagebox.showinfo("Éxito", f"Producto '{producto}' añadido con éxito")
+            messagebox.showinfo("Éxito", f"Producto '{producto}' añadido con éxito en productos y ventas")
         except mysql.connector.Error as err:
             messagebox.showerror("Error", f"No se pudo añadir el producto: {err}")
         finally:
             cursor.close()
             conexion.close()
+
 
 
 
@@ -141,7 +147,7 @@ def ventana_anadir_productos():
     root.resizable(False, False)
 
     # Tamaño de la ventana
-    altura_ventana = 400
+    altura_ventana = 450
     ancho_ventana = 600
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
@@ -159,70 +165,55 @@ def ventana_anadir_productos():
     producto_entry = tk.Entry(root, font=("Helvetica", 12))
     producto_entry.grid(row=0, column=1, padx=20, pady=10)
 
-    # Etiqueta y entrada para el precio del producto
-    tk.Label(root, text="Precio del producto:", font=("Helvetica", 12)).grid(row=1, column=0, padx=20, pady=10)
+    # Etiqueta y entrada para el precio original del producto
+    tk.Label(root, text="Precio original del producto:", font=("Helvetica", 12)).grid(row=1, column=0, padx=20, pady=10)
     precio_entry = tk.Entry(root, font=("Helvetica", 12))
     precio_entry.grid(row=1, column=1, padx=20, pady=10)
 
+    # Etiqueta y entrada para el precio de venta del producto
+    tk.Label(root, text="Precio de venta del producto:", font=("Helvetica", 12)).grid(row=2, column=0, padx=20, pady=10)
+    precio_venta_entry = tk.Entry(root, font=("Helvetica", 12))
+    precio_venta_entry.grid(row=2, column=1, padx=20, pady=10)
+
     # Menú desplegable para seleccionar la categoria
-    tk.Label(root, text="Categoria:", font=("Helvetica", 12)).grid(row=2, column=0, padx=20, pady=10)
+    tk.Label(root, text="Categoria:", font=("Helvetica", 12)).grid(row=3, column=0, padx=20, pady=10)
     categorias = obtener_categorias()
-    categoria_combobox = ttk.Combobox(root, values=[f"{s[1]}" for s in categorias], state="readonly",
-                                     font=("Helvetica", 12))
-    categoria_combobox.grid(row=2, column=1, padx=20, pady=10)
+    categoria_combobox = ttk.Combobox(root, values=[f"{s[1]}" for s in categorias], state="readonly", font=("Helvetica", 12))
+    categoria_combobox.grid(row=3, column=1, padx=20, pady=10)
 
     # Solo seleccionamos el primer elemento si hay datos
     if categorias:
         categoria_combobox.current(0)
 
     # Menú desplegable para seleccionar el proveedor
-    tk.Label(root, text="Proveedor:", font=("Helvetica", 12)).grid(row=3, column=0, padx=20, pady=10)
+    tk.Label(root, text="Proveedor:", font=("Helvetica", 12)).grid(row=4, column=0, padx=20, pady=10)
     proveedores = obtener_proveedores()
-    proveedor_combobox = ttk.Combobox(root, values=[f"{p[1]}" for p in proveedores], state="readonly",
-                                      font=("Helvetica", 12))
-    proveedor_combobox.grid(row=3, column=1, padx=20, pady=10)
+    proveedor_combobox = ttk.Combobox(root, values=[f"{p[1]}" for p in proveedores], state="readonly", font=("Helvetica", 12))
+    proveedor_combobox.grid(row=4, column=1, padx=20, pady=10)
 
     # Solo seleccionamos el primer elemento si hay datos
     if proveedores:
         proveedor_combobox.current(0)
 
-        # Menú desplegable para seleccionar el proveedor
-        tk.Label(root, text="Proveedor:", font=("Helvetica", 12)).grid(row=3, column=0, padx=20, pady=10)
-        proveedores = obtener_proveedores()
-        proveedor_combobox = ttk.Combobox(root, values=[f"{p[1]}" for p in proveedores], state="readonly",
-                                          font=("Helvetica", 12))
-        proveedor_combobox.grid(row=3, column=1, padx=20, pady=10)
+    # Obtener el ID del usuario actual (se supone que lo tienes almacenado)
+    if usuario_actual.usuario_actual is not None:
+        id_usuario = usuario_actual.usuario_actual[0]
+    else:
+        messagebox.showerror("Error", "No se ha iniciado sesión")
+        return
 
-        # Solo seleccionamos el primer elemento si hay datos
-        if proveedores:
-            proveedor_combobox.current(0)
-
-        # Obtener el ID del usuario actual (se supone que lo tienes almacenado)
-        if usuario_actual.usuario_actual is not None:
-            id_usuario = usuario_actual.usuario_actual[0]
-        else:
-            messagebox.showerror("Error", "No se ha iniciado sesión")
-            return
-
-        # Mostrar la sucursal automáticamente en lugar de pedir que se elija
-        tk.Label(root, text="Sucursal:", font=("Helvetica", 12)).grid(row=4, column=0, padx=20, pady=10)
-
-        # Llamar a la función que obtiene la sucursal del cliente
-        sucursal_cliente = obtener_sucursal_cliente(id_usuario)
-
-        # Mostrar la sucursal obtenida
-        tk.Label(root, text=sucursal_cliente, font=("Helvetica", 12)).grid(row=4, column=1, padx=20, pady=10)
-
-        # Obtener el ID de la sucursal
-        id_sucursal = obtener_sucursal_cliente_id(id_usuario)
-
-        # Solo seleccionamos el primer elemento si hay datos
+    # Mostrar la sucursal automáticamente en lugar de pedir que se elija
+    tk.Label(root, text="Sucursal:", font=("Helvetica", 12)).grid(row=5, column=0, padx=20, pady=10)
+    sucursal_cliente = obtener_sucursal_cliente(id_usuario)
+    tk.Label(root, text=sucursal_cliente, font=("Helvetica", 12)).grid(row=5, column=1, padx=20, pady=10)
+    id_sucursal = obtener_sucursal_cliente_id(id_usuario)
 
     # Función para agregar el producto seleccionado
     def agregar_producto():
         producto = producto_entry.get()
         try:
             precio = float(precio_entry.get())
+            precio_venta = float(precio_venta_entry.get())  # Nuevo: precio de venta
             categoria_seleccionada = categoria_combobox.get()
             proveedor_seleccionado = proveedor_combobox.get()
 
@@ -231,23 +222,19 @@ def ventana_anadir_productos():
             id_proveedor = next((p[0] for p in proveedores if p[1] == proveedor_seleccionado), None)
 
             if id_categoria and id_proveedor and id_sucursal:
-                anadir_producto(producto, precio, id_categoria, id_proveedor, id_sucursal)
+                anadir_producto(producto, precio, precio_venta, id_categoria, id_proveedor, id_sucursal)
             else:
                 messagebox.showerror("Error", "Categoria, proveedor o sucursal no válida.")
         except ValueError:
             messagebox.showerror("Error", "El precio debe ser un número válido.")
 
     # Botón para añadir producto
-    tk.Button(root, text="Añadir Producto", font=("Helvetica", 12), width=20, command=agregar_producto).grid(row=5,
-                                                                                                             column=1,
-                                                                                                             pady=20)
+    tk.Button(root, text="Añadir Producto", font=("Helvetica", 12), width=20, command=agregar_producto).grid(row=6, column=1, pady=20)
 
     # Botón para volver
-    tk.Button(root, text="Volver", font=("Helvetica", 12), width=20, command=volver_menu_principal).grid(row=6, column=1,
-                                                                                                pady=20)
+    tk.Button(root, text="Volver", font=("Helvetica", 12), width=20, command=volver_menu_principal).grid(row=7, column=1, pady=20)
 
     root.mainloop()
-
 
 if __name__ == "__main__":
     ventana_anadir_productos()

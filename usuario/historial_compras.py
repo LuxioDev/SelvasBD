@@ -3,6 +3,9 @@ from tkinter import messagebox
 from tkinter import ttk
 import mysql.connector
 import usuario_actual
+import openpyxl
+from openpyxl.styles import Font
+from datetime import datetime
 
 
 # Se realiza la conexion con la base de datos
@@ -19,6 +22,31 @@ def conectar_bd():
         messagebox.showerror("Error de conexión", f"No se pudo conectar a la base de datos: {err}")
         return None
 
+
+def generar_informe_excel(producto, cantidad, precio, usuario, sucursal):
+    # Crear un nuevo libro de trabajo y seleccionar la hoja activa
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    sheet.title = "Informe de Ventas"
+
+    # Añadir encabezados
+    headers = ["Fecha", "Usuario", "Sucursal", "Producto", "Cantidad", "Precio Unitario", "Total"]
+    for col, header in enumerate(headers, start=1):
+        cell = sheet.cell(row=1, column=col)
+        cell.value = header
+        cell.font = Font(bold=True)
+
+    # Añadir datos de la venta
+    fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    total = cantidad * precio
+    datos = [fecha, usuario, sucursal, producto, cantidad, precio, total]
+    for col, dato in enumerate(datos, start=1):
+        sheet.cell(row=2, column=col, value=dato)
+
+    # Guardar el archivo
+    filename = f"Informe_Ventas_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    wb.save(filename)
+    return filename
 
 # Función para mostrar los movimientos del usuario en el Treeview
 def mostrar_movimientos(tree):

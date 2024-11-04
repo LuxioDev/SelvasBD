@@ -19,14 +19,14 @@ def conectar_bd():
         return None
 
 
-    # Función para obtener y mostrar productos y cantidades en el Treeview.
+# Función para obtener y mostrar productos y cantidades en el Treeview.
 def actualizar_lista_stock(tree):
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
         try:
             # Consulta para obtener la descripción, cantidad y precio de cada producto
-            cursor.execute("SELECT p.DESCRIPCION, s.CANTIDAD, p.PRECIO FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
+            cursor.execute("SELECT p.DESCRIPCION, s.CANTIDAD, p.PRECIO FROM venta p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
             resultados = cursor.fetchall()
 
             # Limpiar el Treeview antes de insertar nuevos datos
@@ -72,11 +72,11 @@ def anadir_stock_producto(producto, cantidad_anadir):
         cursor = conexion.cursor()
         try:
             # Actualizar la cantidad de stock del producto seleccionado
-            consulta = "UPDATE stock s JOIN productos p ON s.ID_PRODUCTO = p.ID_PRODUCTO SET s.CANTIDAD = s.CANTIDAD + %s WHERE p.DESCRIPCION = %s"
+            consulta = "UPDATE stock s JOIN venta p ON s.ID_PRODUCTO = p.ID_PRODUCTO SET s.CANTIDAD = s.CANTIDAD + %s WHERE p.DESCRIPCION = %s"
             cursor.execute(consulta, (cantidad_anadir, producto))
 
             cursor.execute(
-                "SELECT p.ID_PRODUCTO, s.ID_SUCURSAL FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO WHERE p.DESCRIPCION = %s",
+                "SELECT p.ID_PRODUCTO, s.ID_SUCURSAL FROM venta p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO WHERE p.DESCRIPCION = %s",
                 (producto,))
             resultado = cursor.fetchone()
             id_usuario = usuario_actual.usuario_actual[0]
