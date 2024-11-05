@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-10-2024 a las 18:02:30
+-- Tiempo de generación: 28-10-2024 a las 19:34:00
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -41,6 +41,27 @@ INSERT INTO `categorias` (`ID_CATEGORIA`, `DESCRIPCION`) VALUES
 (2, 'Carnes de Cerdo'),
 (3, 'Pollos'),
 (4, 'Otros');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cupones`
+--
+
+CREATE TABLE `cupones` (
+  `id` int(11) NOT NULL,
+  `codigo` varchar(5) NOT NULL,
+  `descuento` decimal(5,2) NOT NULL,
+  `activo` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `cupones`
+--
+
+INSERT INTO `cupones` (`id`, `codigo`, `descuento`, `activo`) VALUES
+(1, 'omen', 10.00, 1),
+(2, 'selva', 19.99, 1);
 
 -- --------------------------------------------------------
 
@@ -88,7 +109,48 @@ INSERT INTO `historial_movimientos` (`ID_MOVIMIENTO`, `ID_PRODUCTO`, `ID_SUCURSA
 (22, 22, 2, 2, 'entrada', 0, '2024-10-09 15:59:56', 'Producto nuevo añadido con stock inicial de 0'),
 (23, 23, 2, 2, 'entrada', 0, '2024-10-09 16:00:16', 'Producto nuevo añadido con stock inicial de 0'),
 (24, 24, 2, 2, 'entrada', 0, '2024-10-09 16:00:31', 'Producto nuevo añadido con stock inicial de 0'),
-(25, 25, 2, 2, 'entrada', 0, '2024-10-09 16:00:39', 'Producto nuevo añadido con stock inicial de 0');
+(25, 25, 2, 2, 'entrada', 0, '2024-10-09 16:00:39', 'Producto nuevo añadido con stock inicial de 0'),
+(26, 1, 1, 1, 'salida', 2, '2024-10-22 16:32:28', 'Venta de producto'),
+(27, 1, 1, 1, 'salida', 1, '2024-10-22 16:35:37', 'Venta de producto'),
+(28, 1, 2, 2, 'salida', 2, '2024-10-22 16:53:49', 'Venta de producto'),
+(29, 3, 2, 2, 'salida', 2, '2024-10-22 16:53:57', 'Venta de producto'),
+(30, 3, 2, 2, 'salida', 2, '2024-10-22 16:53:58', 'Venta de producto'),
+(31, 3, 2, 2, 'salida', 2, '2024-10-22 16:54:26', 'Venta de producto'),
+(32, 3, 2, 2, 'salida', 2, '2024-10-22 16:54:33', 'Venta de producto'),
+(33, 3, 2, 2, 'salida', 2, '2024-10-22 16:55:27', 'Venta de producto'),
+(34, 3, 2, 2, 'salida', 3, '2024-10-22 16:55:53', 'Venta de producto'),
+(35, 2, 2, 4, 'entrada', 2, '2024-10-22 16:56:55', 'Se añadió stock de 2 unidades'),
+(36, 3, 2, 2, 'salida', 2, '2024-10-22 18:35:45', 'Venta de producto'),
+(37, 3, 2, 2, 'salida', 3, '2024-10-22 18:35:50', 'Venta de producto'),
+(38, 3, 2, 2, 'salida', 3, '2024-10-22 18:36:28', 'Venta de producto'),
+(39, 1, 2, 2, 'salida', 2, '2024-10-22 18:37:37', 'Venta de producto'),
+(40, 3, 2, 2, 'salida', 2, '2024-10-25 15:07:28', 'Venta de producto'),
+(41, 3, 2, 2, 'salida', 2, '2024-10-25 15:08:26', 'Venta de producto'),
+(42, 3, 2, 2, 'salida', 2, '2024-10-25 15:08:28', 'Venta de producto'),
+(43, 3, 2, 2, 'salida', 2, '2024-10-25 15:08:28', 'Venta de producto'),
+(44, 3, 2, 2, 'salida', 2, '2024-10-25 15:14:00', 'Venta de producto'),
+(45, 3, 2, 2, 'salida', 2, '2024-10-25 15:15:58', 'Venta de producto'),
+(46, 3, 2, 2, 'salida', 2, '2024-10-25 15:17:19', 'Venta de producto'),
+(47, 3, 2, 2, 'salida', 2, '2024-10-25 15:17:27', 'Venta de producto'),
+(48, 3, 2, 2, 'salida', 3, '2024-10-25 15:17:53', 'Venta de producto'),
+(49, 3, 2, 2, 'salida', 3, '2024-10-25 15:18:01', 'Venta de producto'),
+(50, 3, 2, 2, 'salida', 2, '2024-10-25 15:22:27', 'Venta de producto'),
+(51, 3, 2, 2, 'salida', 3, '2024-10-25 15:22:32', 'Venta de producto'),
+(52, 3, 2, 2, 'salida', 4, '2024-10-25 15:22:40', 'Venta de producto'),
+(53, 3, 2, 2, 'salida', 5, '2024-10-25 15:22:47', 'Venta de producto'),
+(54, 2, 2, 1, 'salida', 2, '2024-10-28 15:23:32', 'Se modificó el stock en 2 unidades'),
+(55, 3, 2, 1, 'salida', 2, '2024-10-28 15:23:42', 'Se modificó el stock en 2 unidades'),
+(56, 1, 2, 1, 'salida', 10, '2024-10-28 15:30:03', 'Se modificó el stock en 10 unidades'),
+(57, 1, 2, 1, 'salida', 10, '2024-10-28 15:30:07', 'Se modificó el stock en 10 unidades'),
+(58, 1, 2, 1, 'salida', 10, '2024-10-28 15:30:26', 'Se modificó el stock en 10 unidades'),
+(59, 1, 2, 1, 'salida', 10, '2024-10-28 15:32:11', 'Se modificó el stock en 10 unidades'),
+(60, 1, 2, 3, 'salida', 10, '2024-10-28 15:33:34', 'Se modificó el stock en 10 unidades'),
+(61, 1, 2, 3, 'salida', 10, '2024-10-28 15:34:59', 'Se modificó el stock en 10 unidades'),
+(62, 1, 2, 1, 'salida', 10, '2024-10-28 15:50:26', 'Se modificó el stock en 10 unidades'),
+(63, 1, 2, 1, 'salida', 10, '2024-10-28 15:51:02', 'Se modificó el stock en 10 unidades'),
+(64, 1, 2, 1, 'salida', 10, '2024-10-28 16:00:31', 'Se modificó el stock en 10 unidades'),
+(65, 1, 2, 1, 'salida', 1, '2024-10-28 16:06:59', 'Se modificó el stock en 1 unidades'),
+(66, 1, 2, 1, 'salida', 1, '2024-10-28 16:07:29', 'Se modificó el stock en 1 unidades');
 
 -- --------------------------------------------------------
 
@@ -195,9 +257,9 @@ CREATE TABLE `stock` (
 --
 
 INSERT INTO `stock` (`ID_STOCK`, `ID_SUCURSAL`, `ID_PRODUCTO`, `CANTIDAD`) VALUES
-(1, 2, 1, 0),
+(1, 2, 1, 8),
 (2, 2, 2, 0),
-(3, 2, 3, 0),
+(3, 2, 3, 29),
 (4, 2, 4, 0),
 (5, 2, 5, 0),
 (6, 2, 6, 0),
@@ -266,7 +328,7 @@ INSERT INTO `usuarios` (`ID_USUARIO`, `NOMBRE`, `APELLIDO`, `USUARIO`, `CONTRASE
 (1, 'Lucas', 'Fernandez', 'luxio', 'admin', 1, 1),
 (2, 'Josesito', 'Ramirez', 'jose', '123', 2, 2),
 (3, 'Matias', 'Bracale', 'quantum', 'global', 2, 1),
-(4, 'admin', 'admin', 'admin', 'admin', 2, 3),
+(4, 'admin', 'admin', 'admin', 'admin', 1, 3),
 (5, 'Gabriel', 'Dolores', 'ripgabi', 'rawr', 3, 2);
 
 --
@@ -278,6 +340,13 @@ INSERT INTO `usuarios` (`ID_USUARIO`, `NOMBRE`, `APELLIDO`, `USUARIO`, `CONTRASE
 --
 ALTER TABLE `categorias`
   ADD PRIMARY KEY (`ID_CATEGORIA`);
+
+--
+-- Indices de la tabla `cupones`
+--
+ALTER TABLE `cupones`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `codigo` (`codigo`);
 
 --
 -- Indices de la tabla `historial_movimientos`
@@ -342,10 +411,16 @@ ALTER TABLE `categorias`
   MODIFY `ID_CATEGORIA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT de la tabla `cupones`
+--
+ALTER TABLE `cupones`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT de la tabla `historial_movimientos`
 --
 ALTER TABLE `historial_movimientos`
-  MODIFY `ID_MOVIMIENTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `ID_MOVIMIENTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos`
@@ -381,7 +456,7 @@ ALTER TABLE `sucursales`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `ID_USUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `ID_USUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restricciones para tablas volcadas

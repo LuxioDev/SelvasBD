@@ -8,8 +8,6 @@ from pathlib import Path
 import usuario_actual
 from datetime import datetime
 
-# Ruta del archivo de registro en Excel
-# Ruta del archivo de registro en Excel
 ruta_archivo_excel = Path("registro_compras.xlsx")
 
 # Función para crear o cargar el archivo Excel y preparar encabezados en español si es necesario
@@ -165,7 +163,7 @@ def comprar_productos(tree, cantidad_entry, cupon_entry, metodo_pago_var):
                 monto_total = abs(cantidad) * precio_unitario
                 cantidad_productos = abs(cantidad)
                 sucursal = usuario_actual.usuario_actual[3]
-                
+
                 # Verificar si el cupón es válido y obtener el descuento
                 codigo_cupon = cupon_entry.get().strip()
                 descuento = verificar_cupon(codigo_cupon) or 0
@@ -173,40 +171,25 @@ def comprar_productos(tree, cantidad_entry, cupon_entry, metodo_pago_var):
                 # Aplicar un 15% de descuento si el método de pago es "efectivo"
                 if metodo_pago_var.get() == "efectivo":
                     descuento = 15
-                
+
                 # Calcular el total con descuento
                 total_con_descuento = monto_total * (1 - descuento / 100)
-                
-                # Consulta del precio de compra (de la tabla productos)
-                conexion = conectar_bd()
-                if conexion:
-                    cursor = conexion.cursor()
-                    try:
-                        cursor.execute("SELECT PRECIO FROM productos WHERE DESCRIPCION = %s", (producto,))
-                        resultado = cursor.fetchone()
-                        precio_compra = resultado[0] if resultado else 0  # Asigna 0 si no se encuentra el producto
-                    except mysql.connector.Error as err:
-                        messagebox.showerror("Error", f"No se pudo obtener el precio de compra: {err}")
-                        conexion.close()
-                        return
-                    finally:
-                        cursor.close()
-                        conexion.close()
 
+                # Calcular la ganancia como un 10% del precio unitario multiplicado por la cantidad
+                ganancia = precio_unitario * 0.10 * cantidad_productos
 
-                # Calcular la ganancia
-                ganancia = (precio_unitario - precio_compra) * cantidad_productos
-                
                 # Intentar modificar el stock, solo registrar si el stock es suficiente
                 exito = modificar_stock_producto(producto, cantidad)
-                
+
                 if exito:  # Solo registrar en Excel si la modificación de stock fue exitosa
                     actualizar_lista_stock(tree)
                     cantidad_entry.delete(0, tk.END)
                     cupon_entry.delete(0, tk.END)
 
                     # Registrar la compra en el archivo Excel con los datos completos, incluyendo la ganancia
-                    registrar_compra_excel(fecha_hora, id_usuario, nombre_usuario, producto, precio_unitario, cantidad_productos, monto_total, descuento, total_con_descuento, sucursal, ganancia, ruta_archivo_excel)
+                    registrar_compra_excel(fecha_hora, id_usuario, nombre_usuario, producto, precio_unitario,
+                                           cantidad_productos, monto_total, descuento, total_con_descuento, sucursal,
+                                           ganancia, ruta_archivo_excel)
 
                 else:
                     messagebox.showerror("Error", "Stock insuficiente para completar la compra.")
