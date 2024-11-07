@@ -31,7 +31,6 @@ def mostrar_movimientos(tree):
             cursor.execute(consulta, (sucursal_gestor,))  # Pasar el parámetro como una tupla
             movimientos = cursor.fetchall()
 
-
             for row in tree.get_children():
                 tree.delete(row)
 
@@ -96,6 +95,14 @@ def mostrar_detalle_movimiento(root, tree):
                 conexion.close()
 
 
+# Función para el efecto hover en los botones
+def on_enter(button):
+    button.config(bg="#2677cc", cursor="hand2")
+
+def on_leave(button):
+    button.config(bg="#3399FF", cursor="arrow")
+
+
 # Función principal que define la interfaz gráfica
 def historial_movimientos():
     root = tk.Tk()
@@ -112,6 +119,9 @@ def historial_movimientos():
     y_cordinate = int((altura_pantalla / 2) - (altura_ventana / 2))
 
     root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
+
+    # Fondo oscuro
+    root.config(bg="#2E2E2E")
 
     # Definir la lista para mostrar los detalles de los movimientos
     columnas = ("producto", "tipo_movimiento", "cantidad", "descripcion", "total_dinero")
@@ -137,14 +147,21 @@ def historial_movimientos():
         root.destroy()
         menu_principal()
 
-    volver_btn = tk.Button(root, text="Volver", bg="White", font=("Helvetica", 12), command=volver_menu_usuario)
-    volver_btn.grid(row=2, column=3, sticky="w", padx=10, pady=10)
+    # Botón volver con estilo y hover
+    volver_btn = tk.Button(root, text="Volver", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=volver_menu_usuario)
+    volver_btn.grid(row=2, column=3, sticky="w", padx=20, pady=20)
+    volver_btn.bind("<Enter>", lambda event: on_enter(volver_btn))
+    volver_btn.bind("<Leave>", lambda event: on_leave(volver_btn))
 
-    titulo_label = tk.Label(root, text="Historial de movimientos de la sucursal", font=("Helvetica", 16))
+    # Título
+    titulo_label = tk.Label(root, text="Historial de movimientos de la sucursal", font=("Helvetica", 16), fg="white", bg="#2E2E2E")
     titulo_label.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
 
-    mas_detalle_btn = tk.Button(root, text="Más detalles", bg="White", font=("Helvetica", 12), command=lambda: mostrar_detalle_movimiento(root, tree))
+    # Botón más detalles con estilo y hover
+    mas_detalle_btn = tk.Button(root, text="Más detalles", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=lambda: mostrar_detalle_movimiento(root, tree))
     mas_detalle_btn.grid(row=2, column=2, sticky="w", padx=10, pady=10)
+    mas_detalle_btn.bind("<Enter>", lambda event: on_enter(mas_detalle_btn))
+    mas_detalle_btn.bind("<Leave>", lambda event: on_leave(mas_detalle_btn))
 
     # Mostrar movimientos en la lista
     mostrar_movimientos(tree)

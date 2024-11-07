@@ -1,5 +1,4 @@
-import tkinter as tk
-from tkinter import messagebox
+import customtkinter as ctk
 import mysql.connector
 import usuario_actual
 
@@ -14,7 +13,7 @@ def conectar_bd():
         )
         return conexion
     except mysql.connector.Error as err:
-        messagebox.showerror("Error de conexión", f"No se pudo conectar a la base de datos: {err}")
+        ctk.messagebox.show_error("Error de conexión", f"No se pudo conectar a la base de datos: {err}")
         return None
 
 
@@ -59,51 +58,67 @@ def login():
                         from admin.elegir_sucursal import elegir_sucursal
                         elegir_sucursal()
                     elif permiso_usuario >= 4:
-                        messagebox.showerror("Error", "Permiso invalido, llame a un administrador de bases de datos")
+                        ctk.messagebox.show_error("Error",
+                                                  "Permiso invalido, llame a un administrador de bases de datos")
                 else:
                     # Si no coincide, muestra error
-                    messagebox.showerror("Error", "Credenciales inválidas, intente de nuevo")
+                    ctk.messagebox.show_error("Error", "Credenciales inválidas, intente de nuevo")
 
             except mysql.connector.Error as err:
-                messagebox.showerror("Error", f"No se pudo verificar el usuario: {err}")
+                ctk.messagebox.show_error("Error", f"No se pudo verificar el usuario: {err}")
             finally:
                 cursor.close()
                 conexion.close()
         else:
-            messagebox.showerror("Error", "No se pudo conectar a la base de datos.")
+            ctk.messagebox.show_error("Error", "No se pudo conectar a la base de datos.")
 
-    root = tk.Tk()
-    root.title("Login")
+    root = ctk.CTk()
+    root.title("Acceso al Sistema")
     root.resizable(False, False)
 
-    altura_ventana = 300
-    ancho_ventana = 450
+    # Establecer el tamaño de la ventana (más grande)
+    root.geometry("700x500")
+    root.configure(bg="#1D1D1D")  # Fondo oscuro principal
 
+    # Centrar la ventana en la pantalla
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
+    x_cordinate = int((ancho_pantalla / 2) - (700 / 2))  # Centro horizontal
+    y_cordinate = int((altura_pantalla / 2) - (500 / 2))  # Centro vertical
+    root.geometry(f"700x500+{x_cordinate}+{y_cordinate}")
 
-    x_cordinate = int((ancho_pantalla / 2) - (ancho_ventana / 2))
-    y_cordinate = int((altura_pantalla / 2) - (altura_ventana / 2))
+    # --- Botón Salir con sombra y borde redondeado ---
+    salir_btn = ctk.CTkButton(root, text="Salir", command=root.destroy, fg_color="#3399FF", hover_color="#0066CC",
+                              width=15, font=("Arial", 16, "bold"))
+    salir_btn.place(x=25, y=25)  # Ubicación en la parte superior izquierda
 
-    root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
+    # --- Título centrado (Ahora con el mismo color de fondo que el marco) ---
+    usuario_lbl = ctk.CTkLabel(root, text="Bienvenido al Sistema", font=("Verdana", 28, "bold"), text_color="#3399FF",)
+    usuario_lbl.place(relx=0.5, rely=0.15, anchor="center")  # Centrado vertical y horizontal
 
-    salir_btn = tk.Button(root, text="Salir", command=root.destroy)
-    salir_btn.grid(row=0, column=0, padx=10, pady=10)
+    # --- Marco con bordes redondeados y sombra (centrado) ---
+    frame = ctk.CTkFrame(root, fg_color="#333333", width=450, height=240, corner_radius=20)
+    frame.place(relx=0.5, rely=0.5, anchor="center")  # Centrado en la ventana
 
-    usuario_lbl = tk.Label(root, text="Login")
-    usuario_lbl.grid(row=0, column=2, padx=10, pady=10)
-    usuario_lbl = tk.Label(root, text="Usuario :")
-    usuario_lbl.grid(row=1, column=1, padx=10, pady=10)
-    usuario_ent = tk.Entry(root)
-    usuario_ent.grid(row=1, column=2, padx=10, pady=10)
+    # --- Campos de texto con borde redondeado, sombra y cambio de color al enfocarse ---
+    usuario_ent = ctk.CTkEntry(frame, placeholder_text="Usuario", fg_color="#444444", text_color="#FFFFFF",
+                               font=("Arial", 16), width=330, height=40, border_width=2, border_color="#3399FF",
+                               corner_radius=10)
+    usuario_ent.grid(row=0, column=0, padx=20, pady=20)
 
-    contrasena_lbl = tk.Label(root, text="Contraseña :")
-    contrasena_lbl.grid(row=2, column=1, padx=10, pady=10)
-    contrasena_ent = tk.Entry(root, show='*')
-    contrasena_ent.grid(row=2, column=2, padx=10, pady=10)
+    contrasena_ent = ctk.CTkEntry(frame, placeholder_text="Contraseña", show="*", fg_color="#444444",
+                                  text_color="#FFFFFF", font=("Arial", 16), width=330, height=40, border_width=2,
+                                  border_color="#3399FF", corner_radius=10)
+    contrasena_ent.grid(row=1, column=0, padx=20, pady=20)
 
-    iniciar_btn = tk.Button(root, text="Iniciar sesión", command=credenciales)
-    iniciar_btn.grid(row=3, column=2, padx=10, pady=10)
+    # --- Efecto de fondo con gradientes y bordes ---
+    fondo = ctk.CTkFrame(root, fg_color="#2C2C2C", width=400, height=75, corner_radius=25)
+    fondo.place(relx=0.5, rely=0.85, anchor="center")  # Centrado en la ventana
+
+    # --- Botón de iniciar sesión con sombra y efecto hover ---
+    iniciar_btn = ctk.CTkButton(fondo, text="Iniciar sesión", command=credenciales, fg_color="#3399FF",
+                                hover_color="#0066CC", width=350, font=("Arial", 16, "bold"), corner_radius=15)
+    iniciar_btn.place(relx=0.5, rely=0.5, anchor="center")  # Centrado en la parte inferior del fondo
 
     root.mainloop()
 

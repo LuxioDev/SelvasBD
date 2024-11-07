@@ -73,7 +73,7 @@ def limpiar_campos():
     sucursal_combobox.set('')
     permiso_combobox.set('')
 
-def volver_menu_usuario():   
+def volver_menu_usuario():
     from gestor.menu_principal import menu_principal
     root.destroy()
     menu_principal()

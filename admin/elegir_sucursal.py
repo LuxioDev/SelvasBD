@@ -33,20 +33,20 @@ def obtener_sucursales():
             conexion.close()
     return []
 
+
 def cambiar_sucursal(id_sucursal):
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
         try:
-            # Obtenie el id del usuario actual
+            # Obtener el id del usuario actual
             id_usuario = usuario_actual.usuario_actual[0]
 
-            # Realizar la actualizacion de la sucursal del usuario actual
+            # Actualizar la sucursal del usuario actual
             query = "UPDATE usuarios SET ID_SUCURSAL = %s WHERE ID_USUARIO = %s"
-
             cursor.execute(query, (id_sucursal, id_usuario))
 
-            # Confirmar los cambios en la base de datos
+            # Confirmar cambios
             conexion.commit()
 
             messagebox.showinfo("Éxito", "Sucursal cambiada correctamente.")
@@ -56,14 +56,15 @@ def cambiar_sucursal(id_sucursal):
             cursor.close()
             conexion.close()
 
+
 def elegir_sucursal():
     root = tk.Tk()
-    root.title("Por favor eliga una sucursal")
+    root.title("Elija una sucursal")
     root.resizable(False, False)
 
-    altura_ventana = 250
+    # Definir tamaño de la ventana
+    altura_ventana = 300
     ancho_ventana = 500
-
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
 
@@ -72,12 +73,12 @@ def elegir_sucursal():
 
     root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
 
+    # Función para continuar
     def continuar():
         sucursal_seleccionada = sucursal_combobox.get()
-        # Confirma la sucursal seleccionada para enviarla
+        # Confirmar sucursal seleccionada
         id_sucursal = next((s[0] for s in sucursales if s[1] == sucursal_seleccionada), None)
         if id_sucursal:
-            # Llama a cambiar_sucursal con el id_sucursal seleccionado
             cambiar_sucursal(id_sucursal)
             root.destroy()
             from gestor.menu_principal import menu_principal
@@ -91,28 +92,34 @@ def elegir_sucursal():
         from login import login
         login()
 
-    volver_btn = tk.Button(root, text="Volver", bg="White", font=("Helvetica", 12), width=15, command=cerrar_sesion)
-    volver_btn.grid(row=0, column=0, stick="w", padx=10, pady=10)
+    # Diseño visual de la ventana
+    root.config(bg="#2E2E2E")  # Fondo gris oscuro
 
-    menu_principal_lbl = tk.Label(root, text="Por favor eliga la sucursal que desea administrar", font=("Helvetica", 16))
+    # Botón "Volver"
+    volver_btn = tk.Button(root, text="Volver", bg="#4C9FC5", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=cerrar_sesion)
+    volver_btn.grid(row=0, column=0, stick="w", padx=20, pady=20)
+
+    # Título
+    menu_principal_lbl = tk.Label(root, text="Elija la sucursal que desea administrar", font=("Helvetica", 16, "bold"), fg="white", bg="#2E2E2E")
     menu_principal_lbl.grid(row=1, column=0, columnspan=3, pady=20)
 
-    tk.Label(root, text="Sucursal:", font=("Helvetica", 12)).grid(row=4, column=0, padx=20, pady=10)
-    sucursales = obtener_sucursales()
-    sucursal_combobox = ttk.Combobox(root, values=[f"{s[1]}" for s in sucursales], state="readonly", font=("Helvetica", 12))
-    sucursal_combobox.grid(row=4, column=1, padx=20, pady=10)
+    # Label "Sucursal"
+    tk.Label(root, text="Sucursal:", font=("Helvetica", 12), fg="white", bg="#2E2E2E").grid(row=2, column=0, padx=20, pady=10)
 
-    # Solo seleccionamos el primer elemento si hay datos
+    # Obtener sucursales
+    sucursales = obtener_sucursales()
+    sucursal_combobox = ttk.Combobox(root, values=[f"{s[1]}" for s in sucursales], state="readonly", font=("Helvetica", 12), width=30)
+    sucursal_combobox.grid(row=2, column=1, padx=20, pady=10)
+
     if sucursales:
         sucursal_combobox.current(0)
 
-    gestor_stock_btn = tk.Button(root, text="Continuar", bg="White", font=("Helvetica", 12), width=15, command=continuar)
-    gestor_stock_btn.grid(row=5, column=1, padx=10, pady=10)
-
+    # Botón "Continuar"
+    gestor_stock_btn = tk.Button(root, text="Continuar", bg="#4C9FC5", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=continuar)
+    gestor_stock_btn.grid(row=3, column=1, padx=20, pady=20)
 
     root.mainloop()
 
 
 if __name__ == "__main__":
     elegir_sucursal()
-

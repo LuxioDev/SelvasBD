@@ -6,8 +6,9 @@ def gestion_stock():
     root.title("Gestor de stock")
     root.resizable(False, False)
 
+    # Configuración de la ventana
     altura_ventana = 300
-    ancho_ventana = 550
+    ancho_ventana = 800
 
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
@@ -17,6 +18,9 @@ def gestion_stock():
 
     root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
 
+    # Establecer fondo oscuro
+    root.config(bg="#2E2E2E")
+
     # Función para cambiar a otras ventanas
     def volver_menu_principal():
         from gestor.menu_principal import menu_principal
@@ -24,29 +28,28 @@ def gestion_stock():
         menu_principal()
 
     def abrir_anadir_stock():
-        root.destroy()
         from gestor.añadir_stock import ventana_anadir_stock
+        root.destroy()
         ventana_anadir_stock()
 
     def abrir_anadir_productos():
-        root.destroy()
         from gestor.añadir_productos import ventana_anadir_productos
+        root.destroy()
         ventana_anadir_productos()
 
-    volver_btn = tk.Button(root, text="Volver", bg="White", font=("Helvetica", 12), command=volver_menu_principal)
-    volver_btn.grid(row=0, column=0, stick="w", padx=10, pady=10)
+    # Botón de volver
+    volver_btn = tk.Button(root, text="Volver", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=volver_menu_principal)
+    volver_btn.grid(row=0, column=0, stick="w", padx=20, pady=20)
 
-    root.grid_rowconfigure(1, minsize=20)
-
-    menu_principal_lbl = tk.Label(root, text="Data Base OMENTECH S.A", font=("Helvetica", 16))
+    # Título del menú
+    menu_principal_lbl = tk.Label(root, text="Data Base OMENTECH S.A", font=("Helvetica", 16), fg="white", bg="#2E2E2E")
     menu_principal_lbl.grid(row=2, column=1, columnspan=3, pady=20)
 
-    root.grid_rowconfigure(3, minsize=40)
-
-    anadir_stock_btn = tk.Button(root, text="Añadir Stock", bg="White", font=("Helvetica", 12), width=15, command=abrir_anadir_stock)
+    # Botones de opciones
+    anadir_stock_btn = tk.Button(root, text="Añadir Stock", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=abrir_anadir_stock)
     anadir_stock_btn.grid(row=4, column=1, padx=10, pady=10)
 
-    ver_productos_btn = tk.Button(root, text="Añadir producto", bg="White", font=("Helvetica", 12), width=20, command=abrir_anadir_productos)
+    ver_productos_btn = tk.Button(root, text="Añadir producto", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", width=20, height=2, relief="flat", command=abrir_anadir_productos)
     ver_productos_btn.grid(row=4, column=2, padx=20, pady=20)
 
     root.mainloop()
