@@ -1,6 +1,7 @@
-import tkinter as tk
-from tkinter import messagebox
 from tkinter import ttk
+
+from CTkMessagebox import CTkMessagebox
+import customtkinter as ctk
 import mysql.connector
 import usuario_actual
 
@@ -16,7 +17,7 @@ def conectar_bd():
         )
         return conexion
     except mysql.connector.Error as err:
-        messagebox.showerror("Error de conexión", f"No se pudo conectar a la base de datos: {err}")
+        CTkMessagebox(title="Error de conexión", message=f"No se pudo conectar a la base de datos: {err}", icon="cancel")
         return None
 
 
@@ -36,11 +37,11 @@ def actualizar_lista_stock(tree):
             # Insertar productos y cantidades en el Treeview
             for descripcion, cantidad in resultados:
                 estado = " (Disponible)" if cantidad > 0 else " (Agotado)"
-                cantidad_con_estado = f"{cantidad}{estado}"  # Concatenar cantidad con estado
-                tree.insert("", tk.END, values=(descripcion, cantidad_con_estado))  # Mostrar solo descripción y cantidad
+                cantidad_con_estado = f"{cantidad}{estado}"
+                tree.insert("", ctk.END, values=(descripcion, cantidad_con_estado))
 
         except mysql.connector.Error as err:
-            messagebox.showerror("Error", f"No se pudo recuperar la información del stock: {err}")
+            CTkMessagebox(title="Error", message=f"No se pudo recuperar la información del stock: {err}", icon="cancel")
         finally:
             cursor.close()
             conexion.close()
@@ -60,7 +61,7 @@ def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, 
             cursor.execute(consulta, (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion))
             conexion.commit()
         except mysql.connector.Error as err:
-            messagebox.showerror("Error", f"No se pudo registrar el movimiento: {err}")
+            CTkMessagebox(title="Error", message=f"No se pudo registrar el movimiento: {err}", icon="cancel")
         finally:
             cursor.close()
             conexion.close()
@@ -87,9 +88,9 @@ def anadir_stock_producto(producto, cantidad_anadir):
                                  f"Se añadió stock de {cantidad_anadir} unidades")
 
             conexion.commit()
-            messagebox.showinfo("Éxito", f"Se ha añadido {cantidad_anadir} unidades al producto '{producto}'")
+            CTkMessagebox(title="Éxito", message=f"Se ha añadido {cantidad_anadir} unidades al producto '{producto}'", icon="info")
         except mysql.connector.Error as err:
-            messagebox.showerror("Error", f"No se pudo añadir stock: {err}")
+            CTkMessagebox(title="Error", message=f"No se pudo añadir stock: {err}", icon="cancel")
         finally:
             cursor.close()
             conexion.close()
@@ -97,18 +98,18 @@ def anadir_stock_producto(producto, cantidad_anadir):
 
 # Función para manejar el efecto hover en los botones
 def on_enter(button):
-    button.config(bg="#2677cc", cursor="hand2")
+    button.configure(fg_color="#2677cc", cursor="hand2")
 
 def on_leave(button):
-    button.config(bg="#3399FF", cursor="arrow")
+    button.configure(fg_color="#3399FF", cursor="arrow")
 
 
 # Función para la ventana de gestión de stock
 def ventana_anadir_stock():
-    root = tk.Tk()
+    root = ctk.CTk()
     root.title("Gestión de Stock - Añadir Stock")
     root.geometry("600x400")
-    root.config(bg="#2E2E2E")  # Fondo de la ventana en oscuro
+    root.configure(fg_color="#2E2E2E")  # Fondo de la ventana en oscuro
 
     # Función para volver al menú principal
     def volver_menu_principal():
@@ -117,7 +118,7 @@ def ventana_anadir_stock():
         menu_principal()
 
     # Botón de volver al menú principal con efecto hover
-    volver_btn = tk.Button(root, text="Volver", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", command=volver_menu_principal)
+    volver_btn = ctk.CTkButton(root, text="Volver", fg_color="#3399FF", font=("Helvetica", 12, "bold"), text_color="white", command=volver_menu_principal)
     volver_btn.grid(row=2, column=2, stick="w", padx=10, pady=10)
     volver_btn.bind("<Enter>", lambda event: on_enter(volver_btn))
     volver_btn.bind("<Leave>", lambda event: on_leave(volver_btn))
@@ -129,16 +130,16 @@ def ventana_anadir_stock():
     tree.grid(row=0, column=0, columnspan=3, padx=20, pady=20)
 
     # Botón para actualizar la lista de productos
-    actualizar_btn = tk.Button(root, text="Actualizar Lista", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", command=lambda: actualizar_lista_stock(tree))
+    actualizar_btn = ctk.CTkButton(root, text="Actualizar Lista", fg_color="#3399FF", font=("Helvetica", 12, "bold"), text_color="white", command=lambda: actualizar_lista_stock(tree))
     actualizar_btn.grid(row=1, column=0, padx=10, pady=10)
     actualizar_btn.bind("<Enter>", lambda event: on_enter(actualizar_btn))
     actualizar_btn.bind("<Leave>", lambda event: on_leave(actualizar_btn))
 
     # Entrada para cantidad a añadir
-    cantidad_label = tk.Label(root, text="Cantidad a añadir:", font=("Helvetica", 12, "bold"), fg="white", bg="#2E2E2E")
+    cantidad_label = ctk.CTkLabel(root, text="Cantidad a añadir:", font=("Helvetica", 12, "bold"), text_color="white", fg_color="#2E2E2E")
     cantidad_label.grid(row=1, column=1, padx=10, pady=10)
 
-    cantidad_entry = tk.Entry(root, font=("Helvetica", 12), fg="black", bg="white")
+    cantidad_entry = ctk.CTkEntry(root, font=("Helvetica", 12), fg_color="white", text_color="black")
     cantidad_entry.grid(row=1, column=2, padx=10, pady=10)
 
     # Función para agregar stock
@@ -152,16 +153,16 @@ def ventana_anadir_stock():
                 if cantidad > 0:
                     anadir_stock_producto(producto, cantidad)
                     actualizar_lista_stock(tree)  # Actualizar la lista después de añadir stock
-                    cantidad_entry.delete(0, tk.END)
+                    cantidad_entry.delete(0, ctk.END)
                 else:
-                    messagebox.showerror("Error", "La cantidad debe ser mayor que cero.")
+                    CTkMessagebox(title="Error", message="La cantidad debe ser mayor que cero.", icon="cancel")
             except ValueError:
-                messagebox.showerror("Error", "La cantidad debe ser un número válido.")
+                CTkMessagebox(title="Error", message="La cantidad debe ser un número válido.", icon="cancel")
         else:
-            messagebox.showerror("Error", "Seleccione un producto de la lista.")
+            CTkMessagebox(title="Error", message="Seleccione un producto de la lista.", icon="cancel")
 
     # Botón para añadir stock con efecto hover
-    anadir_btn = tk.Button(root, text="Añadir Stock", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", command=agregar_stock)
+    anadir_btn = ctk.CTkButton(root, text="Añadir Stock", fg_color="#3399FF", font=("Helvetica", 12, "bold"), text_color="white", command=agregar_stock)
     anadir_btn.grid(row=2, column=1, padx=10, pady=10)
     anadir_btn.bind("<Enter>", lambda event: on_enter(anadir_btn))
     anadir_btn.bind("<Leave>", lambda event: on_leave(anadir_btn))
