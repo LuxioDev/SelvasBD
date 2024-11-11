@@ -1,6 +1,5 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+from CTkMessagebox import CTkMessagebox
+import customtkinter as ctk
 import mysql.connector
 import usuario_actual
 
@@ -14,7 +13,7 @@ def conectar_bd():
         )
         return conexion
     except mysql.connector.Error as err:
-        messagebox.showerror("Error de conexión", f"No se pudo conectar a la base de datos: {err}")
+        CTkMessagebox(title="Error de conexión", message=f"No se pudo conectar a la base de datos: {err}", icon="cancel")
         return None
 
 
@@ -27,7 +26,7 @@ def obtener_sucursales():
             sucursales = cursor.fetchall()
             return sucursales
         except mysql.connector.Error as err:
-            messagebox.showerror("Error", f"No se pudo recuperar las sucursales: {err}")
+            CTkMessagebox(title="Error", message=f"No se pudo recuperar las sucursales: {err}", icon="cancel")
         finally:
             cursor.close()
             conexion.close()
@@ -39,30 +38,26 @@ def cambiar_sucursal(id_sucursal):
     if conexion:
         cursor = conexion.cursor()
         try:
-            # Obtener el id del usuario actual
             id_usuario = usuario_actual.usuario_actual[0]
 
-            # Actualizar la sucursal del usuario actual
             query = "UPDATE usuarios SET ID_SUCURSAL = %s WHERE ID_USUARIO = %s"
             cursor.execute(query, (id_sucursal, id_usuario))
-
-            # Confirmar cambios
             conexion.commit()
 
-            messagebox.showinfo("Éxito", "Sucursal cambiada correctamente.")
+            # Mostrar mensaje de éxito y luego cerrar la ventana principal
+            CTkMessagebox(title="Éxito", message="Sucursal cambiada correctamente.", icon="check")
         except mysql.connector.Error as err:
-            messagebox.showerror("Error", f"No se pudo cambiar la sucursal: {err}")
+            CTkMessagebox(title="Error", message=f"No se pudo cambiar la sucursal: {err}", icon="cancel")
         finally:
             cursor.close()
             conexion.close()
 
 
 def elegir_sucursal():
-    root = tk.Tk()
+    root = ctk.CTk()
     root.title("Elija una sucursal")
     root.resizable(False, False)
 
-    # Definir tamaño de la ventana
     altura_ventana = 300
     ancho_ventana = 500
     ancho_pantalla = root.winfo_screenwidth()
@@ -70,52 +65,46 @@ def elegir_sucursal():
 
     x_cordinate = int((ancho_pantalla / 2) - (ancho_ventana / 2))
     y_cordinate = int((altura_pantalla / 2) - (altura_ventana / 2))
-
     root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
 
-    # Función para continuar
     def continuar():
         sucursal_seleccionada = sucursal_combobox.get()
-        # Confirmar sucursal seleccionada
         id_sucursal = next((s[0] for s in sucursales if s[1] == sucursal_seleccionada), None)
         if id_sucursal:
             cambiar_sucursal(id_sucursal)
-            root.destroy()
+            root.withdraw()
             from gestor.menu_principal import menu_principal
             menu_principal()
         else:
-            messagebox.showerror("Error", "Sucursal no válida.")
+            CTkMessagebox(title="Error", message="Sucursal no válida.", icon="cancel")
 
-    # Función para cerrar sesión
     def cerrar_sesion():
         root.destroy()
         from login import login
         login()
 
-    # Diseño visual de la ventana
-    root.config(bg="#2E2E2E")  # Fondo gris oscuro
+    root.configure(fg_color="#2E2E2E")
 
-    # Botón "Volver"
-    volver_btn = tk.Button(root, text="Volver", bg="#4C9FC5", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=cerrar_sesion)
-    volver_btn.grid(row=0, column=0, stick="w", padx=20, pady=20)
+    volver_btn = ctk.CTkButton(root, text="Volver", fg_color="#4C9FC5", font=("Helvetica", 12, "bold"),
+                               text_color="white", width=100, height=40, command=cerrar_sesion)
+    volver_btn.grid(row=0, column=0, sticky="w", padx=20, pady=20)
 
-    # Título
-    menu_principal_lbl = tk.Label(root, text="Elija la sucursal que desea administrar", font=("Helvetica", 16, "bold"), fg="white", bg="#2E2E2E")
+    menu_principal_lbl = ctk.CTkLabel(root, text="Elija la sucursal que desea administrar",
+                                      font=("Helvetica", 16, "bold"), text_color="white")
     menu_principal_lbl.grid(row=1, column=0, columnspan=3, pady=20)
 
-    # Label "Sucursal"
-    tk.Label(root, text="Sucursal:", font=("Helvetica", 12), fg="white", bg="#2E2E2E").grid(row=2, column=0, padx=20, pady=10)
+    ctk.CTkLabel(root, text="Sucursal:", font=("Helvetica", 12), text_color="white").grid(row=2, column=0, padx=20, pady=10)
 
-    # Obtener sucursales
     sucursales = obtener_sucursales()
-    sucursal_combobox = ttk.Combobox(root, values=[f"{s[1]}" for s in sucursales], state="readonly", font=("Helvetica", 12), width=30)
+    sucursal_combobox = ctk.CTkComboBox(root, values=[f"{s[1]}" for s in sucursales], font=("Helvetica", 12),
+                                        width=300, state="readonly")  # Hacer combo box de solo lectura
     sucursal_combobox.grid(row=2, column=1, padx=20, pady=10)
 
     if sucursales:
-        sucursal_combobox.current(0)
+        sucursal_combobox.set(sucursales[0][1])
 
-    # Botón "Continuar"
-    gestor_stock_btn = tk.Button(root, text="Continuar", bg="#4C9FC5", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=continuar)
+    gestor_stock_btn = ctk.CTkButton(root, text="Continuar", fg_color="#4C9FC5", font=("Helvetica", 12, "bold"),
+                                     text_color="white", width=100, height=40, command=continuar)
     gestor_stock_btn.grid(row=3, column=1, padx=20, pady=20)
 
     root.mainloop()
