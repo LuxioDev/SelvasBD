@@ -41,8 +41,8 @@ def menu_principal():
 
     def usuarios():
         root.destroy()
-        from admin.usuario_crear import crear_usuario
-        crear_usuario()
+        from admin.usuario_crear import crear_usuario_ventana
+        crear_usuario_ventana()
 
     # Función para cerrar sesión
     def cerrar_sesion():
