@@ -27,7 +27,16 @@ def actualizar_lista_stock(tree):
     if conexion:
         cursor = conexion.cursor()
         try:
-            cursor.execute("SELECT p.DESCRIPCION, s.CANTIDAD FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
+            # Obtener la sucursal del usuario actual
+            id_sucursal = usuario_actual.usuario_actual[3]
+
+            # Modificar la consulta para filtrar por sucursal
+            cursor.execute("""
+                SELECT p.DESCRIPCION, s.CANTIDAD 
+                FROM productos p 
+                JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO 
+                WHERE s.ID_SUCURSAL = %s
+            """, (id_sucursal,))
             resultados = cursor.fetchall()
 
             # Limpiar el Treeview antes de insertar nuevos datos
@@ -45,7 +54,6 @@ def actualizar_lista_stock(tree):
         finally:
             cursor.close()
             conexion.close()
-
 
 # Función para registrar un movimiento en el historial
 def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion):
@@ -73,22 +81,40 @@ def anadir_stock_producto(producto, cantidad_anadir):
     if conexion:
         cursor = conexion.cursor()
         try:
-            consulta = "UPDATE stock s JOIN productos p ON s.ID_PRODUCTO = p.ID_PRODUCTO SET s.CANTIDAD = s.CANTIDAD + %s WHERE p.DESCRIPCION = %s"
-            cursor.execute(consulta, (cantidad_anadir, producto))
+            # Obtener la sucursal del usuario actual
+            id_sucursal = usuario_actual.usuario_actual[3]
 
-            cursor.execute(
-                "SELECT p.ID_PRODUCTO, s.ID_SUCURSAL FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO WHERE p.DESCRIPCION = %s",
-                (producto,))
+            # Modificar la consulta para considerar la sucursal
+            consulta = """
+                UPDATE stock s 
+                JOIN productos p ON s.ID_PRODUCTO = p.ID_PRODUCTO 
+                SET s.CANTIDAD = s.CANTIDAD + %s 
+                WHERE p.DESCRIPCION = %s AND s.ID_SUCURSAL = %s
+            """
+            cursor.execute(consulta, (cantidad_anadir, producto, id_sucursal))
+
+            # Consultar el ID del producto y la sucursal
+            cursor.execute("""
+                SELECT p.ID_PRODUCTO 
+                FROM productos p 
+                JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO 
+                WHERE p.DESCRIPCION = %s AND s.ID_SUCURSAL = %s
+            """, (producto, id_sucursal))
             resultado = cursor.fetchone()
-            id_usuario = usuario_actual.usuario_actual[0]
-            id_producto, id_sucursal = resultado
 
-            # Registrar el movimiento de entrada
-            registrar_movimiento(id_producto, id_sucursal, id_usuario, 'entrada', cantidad_anadir,
-                                 f"Se añadió stock de {cantidad_anadir} unidades")
+            if resultado:
+                id_usuario = usuario_actual.usuario_actual[0]
+                id_producto = resultado[0]
 
-            conexion.commit()
-            CTkMessagebox(title="Éxito", message=f"Se ha añadido {cantidad_anadir} unidades al producto '{producto}'", icon="info")
+                # Registrar el movimiento de entrada
+                registrar_movimiento(id_producto, id_sucursal, id_usuario, 'entrada', cantidad_anadir,
+                                     f"Se añadió stock de {cantidad_anadir} unidades")
+
+                conexion.commit()
+                CTkMessagebox(title="Éxito", message=f"Se ha añadido {cantidad_anadir} unidades al producto '{producto}'", icon="info")
+            else:
+                CTkMessagebox(title="Error", message="El producto no se encontró en la base de datos o no pertenece a su sucursal.", icon="cancel")
+
         except mysql.connector.Error as err:
             CTkMessagebox(title="Error", message=f"No se pudo añadir stock: {err}", icon="cancel")
         finally:

@@ -33,15 +33,28 @@ def verificar_cupon(codigo):
             cursor.close()
             conexion.close()
 
+
 def actualizar_lista_stock(tree):
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
         try:
+            # Obtener la sucursal del usuario actual
+            id_sucursal = usuario_actual.usuario_actual[3]
+
+            # Modificar la consulta para filtrar por sucursal
             cursor.execute(
-                "SELECT p.DESCRIPCION, s.CANTIDAD, p.PRECIO FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO")
+                """
+                SELECT p.DESCRIPCION, s.CANTIDAD, p.PRECIO 
+                FROM productos p 
+                JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO 
+                WHERE s.ID_SUCURSAL = %s
+                """,
+                (id_sucursal,)
+            )
             resultados = cursor.fetchall()
 
+            # Limpiar y actualizar la lista
             for item in tree.get_children():
                 tree.delete(item)
 
@@ -75,27 +88,49 @@ def modificar_stock_producto(producto, cantidad_anadir):
     if conexion:
         cursor = conexion.cursor()
         try:
+            # Obtener la sucursal del usuario actual
+            id_sucursal = usuario_actual.usuario_actual[3]
+
+            # Modificar la consulta para considerar la sucursal
             cursor.execute(
-                "SELECT s.CANTIDAD FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO WHERE p.DESCRIPCION = %s",
-                (producto,))
+                """
+                SELECT s.CANTIDAD 
+                FROM productos p 
+                JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO 
+                WHERE p.DESCRIPCION = %s AND s.ID_SUCURSAL = %s
+                """,
+                (producto, id_sucursal)
+            )
             resultado = cursor.fetchone()
 
             if resultado:
                 stock_actual = resultado[0]
                 if stock_actual + cantidad_anadir >= 0:
-                    consulta = "UPDATE stock s JOIN productos p ON s.ID_PRODUCTO = p.ID_PRODUCTO SET s.CANTIDAD = s.CANTIDAD + %s WHERE p.DESCRIPCION = %s"
-                    cursor.execute(consulta, (cantidad_anadir, producto))
+                    consulta = """
+                        UPDATE stock s 
+                        JOIN productos p ON s.ID_PRODUCTO = p.ID_PRODUCTO 
+                        SET s.CANTIDAD = s.CANTIDAD + %s 
+                        WHERE p.DESCRIPCION = %s AND s.ID_SUCURSAL = %s
+                    """
+                    cursor.execute(consulta, (cantidad_anadir, producto, id_sucursal))
 
+                    # Registrar el movimiento
                     cursor.execute(
-                        "SELECT p.ID_PRODUCTO, s.ID_SUCURSAL FROM productos p JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO WHERE p.DESCRIPCION = %s",
-                        (producto,))
+                        """
+                        SELECT p.ID_PRODUCTO 
+                        FROM productos p 
+                        JOIN stock s ON p.ID_PRODUCTO = s.ID_PRODUCTO 
+                        WHERE p.DESCRIPCION = %s AND s.ID_SUCURSAL = %s
+                        """,
+                        (producto, id_sucursal)
+                    )
                     resultado = cursor.fetchone()
                     id_usuario = usuario_actual.usuario_actual[0]
-                    id_producto, id_sucursal = resultado
+                    id_producto = resultado[0]
 
                     registrar_movimiento(id_producto, id_sucursal, id_usuario,
                                          'salida' if cantidad_anadir < 0 else 'entrada', -cantidad_anadir,
-                                         f"Venta del producto")
+                                         "Venta del producto")
 
                     conexion.commit()
                     CTkMessagebox(title="Éxito", message=f"Se ha comprado {-cantidad_anadir} unidades de '{producto}'")
