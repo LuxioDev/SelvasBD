@@ -1,73 +1,77 @@
-import tkinter as tk
+import customtkinter as ctk
 import usuario_actual
 
 def menu_usuario():
-    root = tk.Tk()
-    root.title("Menu Ventas")
+    # Configuración inicial de apariencia
+    ctk.set_appearance_mode("dark")  # Modo oscuro
+    ctk.set_default_color_theme("blue")  # Tema de color
+
+    # Crear ventana principal
+    root = ctk.CTk()
+    root.title("Menú Ventas - OMENMEAT S.A")
     root.resizable(False, False)
+    root.configure(fg_color="#2C2C2C")  # Fondo gris oscuro
 
     # Configuración de dimensiones y posición de la ventana
-    altura_ventana = 300
-    ancho_ventana = 500
+    altura_ventana = 500
+    ancho_ventana = 700
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
     x_cordinate = int((ancho_pantalla / 2) - (ancho_ventana / 2))
     y_cordinate = int((altura_pantalla / 2) - (altura_ventana / 2))
     root.geometry(f"{ancho_ventana}x{altura_ventana}+{x_cordinate}+{y_cordinate}")
 
-    # Configuración de colores y estilos
-    root.configure(bg="#2E2E2E")  # Fondo oscuro
+    # Título principal
+    titulo_lbl = ctk.CTkLabel(root, text="Menú Principal", font=("Verdana", 28, "bold"), text_color="#FFFFFF")
+    titulo_lbl.place(relx=0.5, rely=0.15, anchor="center")
 
-    # Mostrar el nombre del usuario que inició sesión
+    # Marco principal
+    frame = ctk.CTkFrame(root, fg_color="#333333", width=450, height=320, corner_radius=20)
+    frame.place(relx=0.5, rely=0.5, anchor="center")
+
+    # Subtítulo: Mostrar el nombre del usuario
     if usuario_actual.usuario_actual:
         nombre_usuario = usuario_actual.usuario_actual[1]
-        bienvenida_lbl = tk.Label(root, text=f"Bienvenido {nombre_usuario}", font=("Helvetica", 12, "bold"), fg="white", bg="#2E2E2E")
-        bienvenida_lbl.grid(row=0, column=1, padx=10, pady=10)
+        bienvenida_lbl = ctk.CTkLabel(frame, text=f"Bienvenido, {nombre_usuario}",
+                                      font=("Arial", 16), text_color="#FFFFFF")
     else:
-        bienvenida_lbl = tk.Label(root, text="Bienvenido", font=("Helvetica", 12, "bold"), fg="white", bg="#2E2E2E")
-        bienvenida_lbl.grid(row=0, column=1, padx=10, pady=10)
+        bienvenida_lbl = ctk.CTkLabel(frame, text="Bienvenido, Usuario",
+                                      font=("Arial", 16), text_color="#FFFFFF")
+    bienvenida_lbl.grid(row=0, column=0, pady=20, padx=20)
 
     # Funciones para los botones
     def comprar_productos():
-        root.destroy()
         from usuario.comprar_productos import ventana_comprar_productos
-        ventana_comprar_productos()
+        root.after(50, root.withdraw(), ventana_comprar_productos())
 
     def historial_compras():
-        root.destroy()
         from usuario.historial_compras import historial_compras
-        historial_compras()
+        root.after(50, root.withdraw(), historial_compras())
 
     def cerrar_sesion():
-        root.destroy()
         from login import login
-        login()
+        root.after(50, root.destroy(), login())
 
-    # Funciones para el efecto hover en los botones
-    def on_enter(e):
-        e.widget.config(relief="raised", bd=4)
+    # Botones principales
+    gestor_stock_btn = ctk.CTkButton(frame, text="Lista de productos", command=comprar_productos,
+                                     fg_color="#3399FF", hover_color="#0066CC",
+                                     width=330, font=("Arial", 16, "bold"), corner_radius=15)
+    gestor_stock_btn.grid(row=1, column=0, pady=10, padx=20)
 
-    def on_leave(e):
-        e.widget.config(relief="flat", bd=2)
+    historial_btn = ctk.CTkButton(frame, text="Historial de compras", command=historial_compras,
+                                  fg_color="#3399FF", hover_color="#0066CC",
+                                  width=330, font=("Arial", 16, "bold"), corner_radius=15)
+    historial_btn.grid(row=2, column=0, pady=10, padx=20)
 
-    # Configuración de los botones con los nuevos estilos
-    volver_btn = tk.Button(root, text="Cerrar Sesión", bg="#3399FF", fg="white", font=("Helvetica", 12, "bold"), width=15, command=cerrar_sesion, relief="flat", bd=2)
-    volver_btn.grid(row=0, column=0, sticky="w", padx=10, pady=10)
-    volver_btn.bind("<Enter>", on_enter)
-    volver_btn.bind("<Leave>", on_leave)
+    cerrar_sesion_btn = ctk.CTkButton(frame, text="Cerrar Sesión", command=cerrar_sesion,
+                                      fg_color="#FF4D4D", hover_color="#CC0000",
+                                      width=330, font=("Arial", 16, "bold"), corner_radius=15)
+    cerrar_sesion_btn.grid(row=3, column=0, pady=10, padx=20)
 
-    menu_principal_lbl = tk.Label(root, text="Mercado de OMENMEAT S.A", font=("Helvetica", 16, "bold"), fg="white", bg="#2E2E2E")
-    menu_principal_lbl.grid(row=2, column=0, columnspan=5, pady=50, padx=110)
-
-    gestor_stock_btn = tk.Button(root, text="Lista de productos", bg="#3399FF", fg="white", font=("Helvetica", 12, "bold"), width=18, command=comprar_productos, relief="flat", bd=2)
-    gestor_stock_btn.grid(row=4, column=0, padx=30, pady=10)
-    gestor_stock_btn.bind("<Enter>", on_enter)
-    gestor_stock_btn.bind("<Leave>", on_leave)
-
-    historial_btn = tk.Button(root, text="Historial de compras", bg="#3399FF", fg="white", font=("Helvetica", 12, "bold"), width=18, command=historial_compras, relief="flat", bd=2)
-    historial_btn.grid(row=4, column=1, padx=40, pady=10)
-    historial_btn.bind("<Enter>", on_enter)
-    historial_btn.bind("<Leave>", on_leave)
+    # Pie de página
+    footer_lbl = ctk.CTkLabel(root, text="© 2024 OMENMEAT S.A - Todos los derechos reservados.",
+                              font=("Arial", 10), text_color="#888888")
+    footer_lbl.place(relx=0.5, rely=0.95, anchor="center")
 
     root.mainloop()
 

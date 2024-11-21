@@ -42,16 +42,13 @@ def login():
 
                     if permiso_usuario == 1:
                         from usuario.menu_usuario import menu_usuario
-                        root.destroy()
-                        menu_usuario()
+                        root.after(50, root.withdraw(), menu_usuario())
                     elif permiso_usuario == 2:
                         from gestor.menu_principal import menu_principal
-                        root.destroy()
-                        menu_principal()
+                        root.after(50, root.withdraw(), menu_principal())
                     elif permiso_usuario == 3:
                         from admin.elegir_sucursal import elegir_sucursal
-                        root.destroy()
-                        elegir_sucursal()
+                        root.after(50, root.withdraw(), elegir_sucursal())
                     elif permiso_usuario >= 4:
                         CTkMessagebox(title="Error",
                                       message="Permiso invalido, llame a un administrador de bases de datos",
@@ -71,12 +68,11 @@ def login():
         confirmacion = CTkMessagebox(title="Confirmación", message="¿Estás seguro de que deseas salir?",
                                      icon="question", option_1="No", option_2="Sí")
         if confirmacion.get() == "Sí":
-            root.destroy()
+            root.after(50, root.destroy())
 
     root = ctk.CTk()
     root.title("Acceso al Sistema")
     root.resizable(False, False)
-    root.geometry("700x500")
     root.configure(fg_color="#2C2C2C")  # Fondo gris oscuro
 
     ancho_pantalla = root.winfo_screenwidth()

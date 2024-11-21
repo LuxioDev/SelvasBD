@@ -43,9 +43,6 @@ def cambiar_sucursal(id_sucursal):
             query = "UPDATE usuarios SET ID_SUCURSAL = %s WHERE ID_USUARIO = %s"
             cursor.execute(query, (id_sucursal, id_usuario))
             conexion.commit()
-
-            # Mostrar mensaje de éxito y luego cerrar la ventana principal
-            CTkMessagebox(title="Éxito", message="Sucursal cambiada correctamente.", icon="check")
         except mysql.connector.Error as err:
             CTkMessagebox(title="Error", message=f"No se pudo cambiar la sucursal: {err}", icon="cancel")
         finally:
@@ -72,16 +69,14 @@ def elegir_sucursal():
         id_sucursal = next((s[0] for s in sucursales if s[1] == sucursal_seleccionada), None)
         if id_sucursal:
             cambiar_sucursal(id_sucursal)
-            root.withdraw()
             from gestor.menu_principal import menu_principal
-            menu_principal()
+            root.after(50, root.destroy(), menu_principal())
         else:
             CTkMessagebox(title="Error", message="Sucursal no válida.", icon="cancel")
 
     def cerrar_sesion():
-        root.destroy()
         from login import login
-        login()
+        root.after(50, root.destroy(), login())
 
     root.configure(fg_color="#2E2E2E")
 
