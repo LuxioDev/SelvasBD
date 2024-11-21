@@ -27,7 +27,7 @@ def conectar_bd():
 # Función para exportar el historial a Excel
 def exportar_a_excel(tree):
     id_usuario = usuario_actual.usuario_actual[0]
-    sucursal = "Sucursal_X"  # Cambia esto según cómo obtengas la sucursal del usuario
+    sucursal = usuario_actual.usuario_actual[3]
     filename = f"Informe_Ventas_Usuario_{id_usuario}_Sucursal_{sucursal}.xlsx"
 
     # Verificar si el archivo ya existe
@@ -38,7 +38,8 @@ def exportar_a_excel(tree):
         wb = openpyxl.Workbook()
         sheet = wb.active
         sheet.title = "Informe de Ventas"
-        headers = ["Fecha", "Usuario", "Sucursal", "Producto", "Cantidad", "Precio Unitario", "Total"]
+        headers = ["Fecha", "Usuario", "Sucursal", "Producto", "Cantidad",
+                   "Precio Unitario", "Descuento", "Metodo de Pago", "Total"]
         sheet.append(headers)
 
     # Obtener datos del Treeview
@@ -52,11 +53,15 @@ def exportar_a_excel(tree):
         total = float(total_str) if total_str else 0
         precio_unitario = total / cantidad if cantidad > 0 else 0  # Cálculo del precio unitario
 
+        # Aquí debes definir cómo obtienes el Descuento y Metodo_Pago
+        Descuento = 0  # Asigna el descuento correspondiente
+        Metodo_Pago = "Efectivo"  # Asigna el método de pago correspondiente
+
         # Obtener la fecha actual para la exportación
-        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Cambia esto si quieres una fecha diferente
+        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Agregar fila al Excel
-        fila = [fecha, id_usuario, sucursal, producto, cantidad, precio_unitario, total]
+        fila = [fecha, id_usuario, sucursal, producto, cantidad, precio_unitario, Descuento, Metodo_Pago, total]
         sheet.append(fila)
 
     wb.save(filename)
@@ -69,7 +74,6 @@ def mostrar_movimientos(tree):
         cursor = conexion.cursor()
         try:
             id_usuario = usuario_actual.usuario_actual[0]
-            # Modificación aquí: agregar ORDER BY m.fecha DESC para mostrar los más nuevos primero
             consulta = """
                 SELECT m.id_movimiento, p.descripcion, DATE_FORMAT(m.fecha, '%d/%m') as fecha_movimiento,
                        m.cantidad, (m.cantidad * p.precio) as total

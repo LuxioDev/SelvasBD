@@ -23,9 +23,9 @@ def verificar_cupon(codigo):
     if conexion:
         cursor = conexion.cursor()
         try:
-            cursor.execute("SELECT descuento FROM cupones WHERE codigo = %s AND activo = TRUE", (codigo,))
+            cursor.execute("SELECT id_cupon, descuento FROM cupones WHERE codigo = %s AND activo = 1", (codigo,))
             resultado = cursor.fetchone()
-            return resultado[0] if resultado else None
+            return resultado if resultado else None  # Retorna una tupla (id_cupon, descuento)
         except mysql.connector.Error as err:
             CTkMessagebox(title="Error", message=f"No se pudo verificar el cupón: {err}")
             return None
@@ -69,13 +69,13 @@ def actualizar_lista_stock(tree):
             cursor.close()
             conexion.close()
 
-def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion):
+def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion, id_cupon, mpago):
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
         try:
-            consulta = "INSERT INTO historial_movimientos (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion) VALUES (%s, %s, %s, %s, %s, %s)"
-            cursor.execute(consulta, (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion))
+            consulta = "INSERT INTO historial_movimientos (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion, id_cupon, mpago) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(consulta, (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion, id_cupon, mpago))
             conexion.commit()
         except mysql.connector.Error as err:
             CTkMessagebox(title="Error", message=f"No se pudo registrar el movimiento: {err}")
@@ -83,7 +83,7 @@ def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, 
             cursor.close()
             conexion.close()
 
-def modificar_stock_producto(producto, cantidad_anadir):
+def modificar_stock_producto(producto, cantidad_anadir, id_cupon, metodo_pago):
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
@@ -127,10 +127,11 @@ def modificar_stock_producto(producto, cantidad_anadir):
                     resultado = cursor.fetchone()
                     id_usuario = usuario_actual.usuario_actual[0]
                     id_producto = resultado[0]
+                    mpago = metodo_pago
 
                     registrar_movimiento(id_producto, id_sucursal, id_usuario,
                                          'salida' if cantidad_anadir < 0 else 'entrada', -cantidad_anadir,
-                                         "Venta del producto")
+                                         "Venta del producto", id_cupon, mpago)
 
                     conexion.commit()
                     CTkMessagebox(title="Éxito", message=f"Se ha comprado {-cantidad_anadir} unidades de '{producto}'")
@@ -161,24 +162,31 @@ def comprar_productos(tree, cantidad_entry, cupon_entry, metodo_pago_var):
         try:
             cantidad = -int(cantidad_entry.get())
             if cantidad < 0:
-                fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                id_usuario = usuario_actual.usuario_actual[0]
-                nombre_usuario = usuario_actual.usuario_actual[1]
                 precio_unitario = float(values[2].replace("$", "").strip())
                 monto_total = abs(cantidad) * precio_unitario
                 cantidad_productos = abs(cantidad)
-                sucursal = usuario_actual.usuario_actual[3]
 
                 codigo_cupon = cupon_entry.get().strip()
-                descuento = verificar_cupon(codigo_cupon) or 0
+                cupon_resultado = verificar_cupon(codigo_cupon)  # Cambiado para recibir el resultado completo
 
-                if metodo_pago_var.get() == "efectivo":
-                    descuento = 15
+                if cupon_resultado:
+                    id_cupon, descuento = cupon_resultado  # Descomponemos el resultado
+                else:
+                    id_cupon = None
+                    descuento = 0
 
-                total_con_descuento = monto_total * (1 - descuento / 100)
-                ganancia = precio_unitario * 0.10 * cantidad_productos
+                # Inicializar total_descuento
+                total_descuento = monto_total * (1 - float(descuento) / 100)
 
-                exito = modificar_stock_producto(producto, cantidad)
+                # Verificar método de pago y aplicar interés si es tarjeta
+                if metodo_pago_var.get() == "Tarjeta":
+                    metodo_pago = "Tarjeta"
+                    interes = 0.10
+                    total_descuento += total_descuento * interes  # Calcular el total con descuento y interés
+                else:
+                    metodo_pago = "Efectivo"
+
+                exito = modificar_stock_producto(producto, cantidad, id_cupon, metodo_pago)
 
                 if exito:
                     actualizar_lista_stock(tree)
@@ -193,6 +201,7 @@ def comprar_productos(tree, cantidad_entry, cupon_entry, metodo_pago_var):
             CTkMessagebox(title="Error", message="La cantidad debe ser un número válido.")
     else:
         CTkMessagebox(title="Error", message="Seleccione un producto de la lista.")
+
 
 def ventana_comprar_productos():
     root = ctk.CTk()
@@ -241,10 +250,10 @@ def ventana_comprar_productos():
 
     metodo_pago_var = ctk.StringVar(value="efectivo")
 
-    efectivo_radio = ctk.CTkRadioButton(root, text="Efectivo -15%", variable=metodo_pago_var, value="efectivo")
+    efectivo_radio = ctk.CTkRadioButton(root, text="Efectivo", variable=metodo_pago_var, value="Efectivo")
     efectivo_radio.grid(row=2, column=2)
 
-    tarjeta_radio = ctk.CTkRadioButton(root, text="Tarjeta", variable=metodo_pago_var, value="tarjeta")
+    tarjeta_radio = ctk.CTkRadioButton(root, text="Tarjeta +10%", variable=metodo_pago_var, value="Tarjeta")
     tarjeta_radio.grid(row=3, column=2)
 
     actualizar_lista_stock(tree)
