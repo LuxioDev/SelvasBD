@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from CTkMessagebox import CTkMessagebox
 from tkinter import messagebox
 from tkinter import ttk
 import mysql.connector
@@ -19,7 +20,8 @@ def conectar_bd():
         )
         return conexion
     except mysql.connector.Error as err:
-        messagebox.showerror("Error de conexión", f"No se pudo conectar a la base de datos: {err}")
+        CTkMessagebox(title="Error de conexión", message=f"No se pudo conectar a la base de datos: {err}",
+                      icon="cancel")
         return None
 
 # Función para exportar el historial a Excel
@@ -94,24 +96,32 @@ def mostrar_detalle_compra(root, tree):
                 consulta = "SELECT fecha, descripcion FROM historial_movimientos WHERE id_movimiento = %s"
                 cursor.execute(consulta, (id_movimiento,))
                 resultado = cursor.fetchone()
+
+                # Verificación de resultados
+                print(f"Resultado de la consulta: {resultado}")  # Debugging
                 if resultado:
-                    fecha_exacta = resultado[0]
-                    descripcion_completa = resultado[1]
+                    fecha_exacta = resultado[0] or "No disponible"
+                    descripcion_completa = resultado[1] or "No disponible"
 
                     ventana_detalle = ctk.CTkToplevel(root)
                     ventana_detalle.title("Detalles de la compra")
                     ventana_detalle.configure(bg="#2E2E2E")
 
-                    label_fecha = ctk.CTkLabel(ventana_detalle, text="Fecha exacta:", font=("Helvetica", 12), fg="white")
+                    label_fecha = ctk.CTkLabel(ventana_detalle, text="Fecha exacta:", font=("Helvetica", 12),
+                                               text_color="white")
                     label_fecha.grid(row=0, column=0, padx=10, pady=10)
-                    label_fecha_valor = ctk.CTkLabel(ventana_detalle, text =fecha_exacta, font=("Helvetica", 12), fg="white")
+                    label_fecha_valor = ctk.CTkLabel(ventana_detalle, text=fecha_exacta, font=("Helvetica", 12),
+                                                     text_color="white")
                     label_fecha_valor.grid(row=0, column=1, padx=10, pady=10)
 
-                    label_descripcion = ctk.CTkLabel(ventana_detalle, text="Descripción completa:", font=("Helvetica", 12), fg="white")
+                    label_descripcion = ctk.CTkLabel(ventana_detalle, text="Descripción completa:",
+                                                     font=("Helvetica", 12), text_color="white")
                     label_descripcion.grid(row=1, column=0, padx=10, pady=10)
-                    label_descripcion_valor = ctk.CTkLabel(ventana_detalle, text=descripcion_completa, font=("Helvetica", 12), fg="white", wraplength=400)
+                    label_descripcion_valor = ctk.CTkLabel(ventana_detalle, text=descripcion_completa,
+                                                           font=("Helvetica", 12), text_color="white", wraplength=400)
                     label_descripcion_valor.grid(row=1, column=1, padx=10, pady=10)
-
+                else:
+                    messagebox.showwarning("Sin resultados", "No se encontraron detalles para esta compra.")
             except mysql.connector.Error as err:
                 messagebox.showerror("Error", f"No se pudo obtener los detalles de la compra: {err}")
             finally:

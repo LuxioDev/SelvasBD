@@ -8,7 +8,7 @@ def menu_usuario():
 
     # Crear ventana principal
     root = ctk.CTk()
-    root.title("Menú Ventas - OMENMEAT S.A")
+    root.title("Menú Ventas")
     root.resizable(False, False)
     root.configure(fg_color="#2C2C2C")  # Fondo gris oscuro
 
