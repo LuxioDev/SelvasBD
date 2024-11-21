@@ -6,7 +6,6 @@ import mysql.connector
 import usuario_actual
 import openpyxl
 from openpyxl.styles import Font
-from datetime import datetime
 import os
 
 # Función para conectar con la base de datos
@@ -25,22 +24,23 @@ def conectar_bd():
         return None
 
 # Función para exportar el historial a Excel
+# Función para exportar el historial a Excel
 def exportar_a_excel(tree):
     id_usuario = usuario_actual.usuario_actual[0]
     sucursal = usuario_actual.usuario_actual[3]
     filename = f"Informe_Ventas_Usuario_{id_usuario}_Sucursal_{sucursal}.xlsx"
 
-    # Verificar si el archivo ya existe
+    # Verificar si el archivo ya existe y eliminarlo
     if os.path.exists(filename):
-        wb = openpyxl.load_workbook(filename)
-        sheet = wb.active
-    else:
-        wb = openpyxl.Workbook()
-        sheet = wb.active
-        sheet.title = "Informe de Ventas"
-        headers = ["Fecha y Hora", "Usuario", "Sucursal", "Producto", "Cantidad",
-                   "Precio Unitario", "Descuento", "Metodo de Pago", "Total"]
-        sheet.append(headers)
+        os.remove(filename)  # Eliminar el archivo existente
+
+    # Crear un nuevo archivo Excel
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    sheet.title = "Informe de Ventas"
+    headers = ["Fecha y Hora", "Usuario", "Sucursal", "Producto", "Cantidad",
+               "Precio Unitario", "Descuento", "Metodo de Pago", "Total"]
+    sheet.append(headers)
 
     # Obtener datos del Treeview
     for item in tree.get_children():
@@ -57,7 +57,6 @@ def exportar_a_excel(tree):
         Descuento = 0  # Asigna el descuento correspondiente
         Metodo_Pago = "Efectivo"  # Asigna el método de pago correspondiente
 
-        # Obtener la fecha y hora exacta del movimiento
         fecha = fecha_movimiento
 
         # Agregar fila al Excel
@@ -75,7 +74,7 @@ def mostrar_movimientos(tree):
         try:
             id_usuario = usuario_actual.usuario_actual[0]
             consulta = """
-                SELECT m.id_movimiento, p.descripcion, DATE_FORMAT(m.fecha, '%d/%m') as fecha_movimiento,
+                SELECT m.id_movimiento, p.descripcion, m.fecha as fecha_movimiento,
                        m.cantidad, (m.cantidad * p.precio) as total
                 FROM historial_movimientos m
                 JOIN productos p ON m.id_producto = p.id_producto
@@ -162,7 +161,7 @@ def historial_compras():
     columnas = ("descripcion_producto", "fecha_movimiento", "cantidad", "total")
     tree = ttk.Treeview(root, columns=columnas, show="headings")
     tree.heading("descripcion_producto", text="Producto")
-    tree.heading("fecha_movimiento", text="Fecha (Día/Mes)")
+    tree.heading("fecha_movimiento", text="Fecha")
     tree.heading("cantidad", text="Cantidad")
     tree.heading("total", text="Total")
     tree.column("descripcion_producto", width=150, anchor="center")
