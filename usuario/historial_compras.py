@@ -38,7 +38,7 @@ def exportar_a_excel(tree):
         wb = openpyxl.Workbook()
         sheet = wb.active
         sheet.title = "Informe de Ventas"
-        headers = ["Fecha", "Usuario", "Sucursal", "Producto", "Cantidad",
+        headers = ["Fecha y Hora", "Usuario", "Sucursal", "Producto", "Cantidad",
                    "Precio Unitario", "Descuento", "Metodo de Pago", "Total"]
         sheet.append(headers)
 
@@ -57,8 +57,8 @@ def exportar_a_excel(tree):
         Descuento = 0  # Asigna el descuento correspondiente
         Metodo_Pago = "Efectivo"  # Asigna el método de pago correspondiente
 
-        # Obtener la fecha actual para la exportación
-        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Obtener la fecha y hora exacta del movimiento
+        fecha = fecha_movimiento
 
         # Agregar fila al Excel
         fila = [fecha, id_usuario, sucursal, producto, cantidad, precio_unitario, Descuento, Metodo_Pago, total]
@@ -95,7 +95,7 @@ def mostrar_movimientos(tree):
         except mysql.connector.Error as err:
             messagebox.showerror("Error", f"No se pudo obtener el historial de compras: {err}")
         finally:
-            cursor.close()
+            cursor .close()
             conexion.close()
 
 # Función para mostrar detalles de la compra seleccionada
