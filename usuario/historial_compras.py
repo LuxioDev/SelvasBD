@@ -69,13 +69,23 @@ def mostrar_movimientos(tree):
         cursor = conexion.cursor()
         try:
             id_usuario = usuario_actual.usuario_actual[0]
-            consulta = "SELECT m.id_movimiento, p.descripcion, DATE_FORMAT(m.fecha, '%d/%m') as fecha_movimiento, m.cantidad, (m.cantidad * p.precio) as total FROM historial_movimientos m JOIN productos p ON m.id_producto = p.id_producto WHERE m.id_usuario = %s"
+            # Modificación aquí: agregar ORDER BY m.fecha DESC para mostrar los más nuevos primero
+            consulta = """
+                SELECT m.id_movimiento, p.descripcion, DATE_FORMAT(m.fecha, '%d/%m') as fecha_movimiento,
+                       m.cantidad, (m.cantidad * p.precio) as total
+                FROM historial_movimientos m
+                JOIN productos p ON m.id_producto = p.id_producto
+                WHERE m.id_usuario = %s
+                ORDER BY m.fecha DESC
+            """
             cursor.execute(consulta, (id_usuario,))
             movimientos = cursor.fetchall()
 
+            # Limpiar el Treeview antes de insertar nuevos datos
             for row in tree.get_children():
                 tree.delete(row)
 
+            # Insertar los movimientos en el Treeview
             for movimiento in movimientos:
                 tree.insert("", "end", iid=movimiento[0], values=movimiento[1:])
         except mysql.connector.Error as err:
@@ -136,8 +146,8 @@ def historial_compras():
     root.title("Historial de Compras")
     root.resizable(False, False)
 
-    altura_ventana = 350
-    ancho_ventana = 450
+    altura_ventana = 400
+    ancho_ventana = 500
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
     x_cordinate = int((ancho_pantalla / 2) - (ancho_ventana / 2))

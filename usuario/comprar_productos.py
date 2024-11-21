@@ -95,7 +95,7 @@ def modificar_stock_producto(producto, cantidad_anadir):
 
                     registrar_movimiento(id_producto, id_sucursal, id_usuario,
                                          'salida' if cantidad_anadir < 0 else 'entrada', -cantidad_anadir,
-                                         f"Se modificó el stock en {-cantidad_anadir} unidades")
+                                         f"Venta del producto")
 
                     conexion.commit()
                     CTkMessagebox(title="Éxito", message=f"Se ha comprado {-cantidad_anadir} unidades de '{producto}'")

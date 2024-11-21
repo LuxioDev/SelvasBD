@@ -21,25 +21,40 @@ def conectar_bd():
 
 
 # Función para mostrar los movimientos de la sucursal gestionada en la lista
-def mostrar_movimientos(tree):
+def mostrar_movimientos(tree, label_total_ventas):
     conexion = conectar_bd()
     if conexion:
         cursor = conexion.cursor()
         try:
             sucursal_gestor = usuario_actual.usuario_actual[3]
-            consulta = "SELECT hm.id_movimiento, p.descripcion AS nombre_producto, hm.tipo_movimiento, hm.cantidad, hm.descripcion, CASE WHEN hm.tipo_movimiento = 'salida' THEN hm.cantidad * p.precio ELSE 0 END AS total_dinero FROM historial_movimientos hm JOIN productos p ON hm.id_producto = p.id_producto WHERE hm.id_sucursal = %s"
-            cursor.execute(consulta, (sucursal_gestor,))  # Pasar el parámetro como una tupla
+            consulta = """
+                SELECT hm.id_movimiento, p.descripcion AS nombre_producto, hm.tipo_movimiento, 
+                       hm.cantidad, hm.descripcion, 
+                       CASE WHEN hm.tipo_movimiento = 'salida' THEN hm.cantidad * p.precio ELSE 0 END AS total_dinero 
+                FROM historial_movimientos hm 
+                JOIN productos p ON hm.id_producto = p.id_producto 
+                WHERE hm.id_sucursal = %s
+            """
+            cursor.execute(consulta, (sucursal_gestor,))
             movimientos = cursor.fetchall()
 
             for row in tree.get_children():
                 tree.delete(row)
+
+            # Calcular el total de las ventas
+            total_ventas = sum(movimiento[5] for movimiento in movimientos if "venta" in movimiento[4].lower())
+
+            # Calcular el 10% de las ventas
+            porcentaje_ventas = total_ventas * 0.10
+
+            # Actualizar el label con el 10% de las ventas
+            label_total_ventas.config(text=f"Total de ganancia: ${porcentaje_ventas:.2f}")
 
             # Ordenar los movimientos por id_movimiento de mayor a menor
             movimientos_ordenados = sorted(movimientos, key=lambda x: x[0], reverse=True)
 
             # Insertar los datos obtenidos en la lista
             for movimiento in movimientos_ordenados:
-                # El primer campo ahora es id_movimiento, lo almacenamos como "iid"
                 tree.insert("", "end", iid=movimiento[0], values=movimiento[1:])
 
         except mysql.connector.Error as err:
@@ -50,8 +65,7 @@ def mostrar_movimientos(tree):
 
 
 def mostrar_detalle_movimiento(root, tree):
-    # Obtener la fila seleccionada en el Treeview
-    seleccionado = tree.focus()  # Devuelve el iid de la fila seleccionada directamente
+    seleccionado = tree.focus()
     if seleccionado:
         id_movimiento = seleccionado
 
@@ -70,6 +84,13 @@ def mostrar_detalle_movimiento(root, tree):
                     ventana_detalle = tk.Toplevel(root)
                     ventana_detalle.title("Detalles del movimiento")
 
+                    # Centrar la ventana
+                    ventana_detalle.update_idletasks()
+                    width = 400  # Ancho mínimo
+                    height = 200  # Alto mínimo
+                    ventana_detalle.geometry(f"{width}x{height}")
+
+                    # Crear los labels
                     label_fecha = tk.Label(ventana_detalle, text="Fecha exacta:", font=("Helvetica", 12))
                     label_fecha.grid(row=0, column=0, padx=10, pady=10)
 
@@ -87,6 +108,11 @@ def mostrar_detalle_movimiento(root, tree):
 
                     label_precio_valor = tk.Label(ventana_detalle, text=f"${precio_producto:.2f}", font=("Helvetica", 12))
                     label_precio_valor.grid(row=2, column=1, padx=10, pady=10)
+
+                    # Actualiza la ventana para ajustarse al contenido
+                    ventana_detalle.update_idletasks()
+                    ventana_detalle.minsize(width=400, height=200)  # Establece un tamaño mínimo
+                    ventana_detalle.geometry("")  # Ajusta la ventana al contenido
 
             except mysql.connector.Error as err:
                 messagebox.showerror("Error", f"No se pudo obtener los detalles del movimiento: {err}")
@@ -109,8 +135,8 @@ def historial_movimientos():
     root.title("Historial de movimientos de la sucursal")
     root.resizable(False, False)
 
-    altura_ventana = 600
-    ancho_ventana = 800
+    altura_ventana = 450
+    ancho_ventana = 780
 
     ancho_pantalla = root.winfo_screenwidth()
     altura_pantalla = root.winfo_screenheight()
@@ -141,30 +167,30 @@ def historial_movimientos():
 
     tree.grid(row=1, column=0, columnspan=4, padx=10, pady=10)
 
-    # Botón para volver al menú del gestor
+    # etiqueta que muestra el 10% de las ventas
+    label_total_ventas = tk.Label(root, text="total de ganancia: $0.00", font=("Helvetica", 12), fg="white", bg="#2E2E2E")
+    label_total_ventas.grid(row=3, column=0, columnspan=4, padx=10, pady=10)
+
     def volver_menu_usuario():
         from gestor.menu_principal import menu_principal
         root.destroy()
         menu_principal()
 
-    # Botón volver con estilo y hover
     volver_btn = tk.Button(root, text="Volver", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=volver_menu_usuario)
     volver_btn.grid(row=2, column=3, sticky="w", padx=20, pady=20)
     volver_btn.bind("<Enter>", lambda event: on_enter(volver_btn))
     volver_btn.bind("<Leave>", lambda event: on_leave(volver_btn))
 
-    # Título
     titulo_label = tk.Label(root, text="Historial de movimientos de la sucursal", font=("Helvetica", 16), fg="white", bg="#2E2E2E")
     titulo_label.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
 
-    # Botón más detalles con estilo y hover
-    mas_detalle_btn = tk.Button(root, text="Más detalles", bg="#3399FF", font=("Helvetica", 12, "bold"), fg="white", width=15, height=2, relief="flat", command=lambda: mostrar_detalle_movimiento(root, tree))
+    mas_detalle_btn = tk.Button(root, text="Más detalles", bg="#3399FF", font=("Helvetica", 12, " bold"), fg="white", width=15, height=2, relief="flat", command=lambda:mostrar_detalle_movimiento(root, tree))
     mas_detalle_btn.grid(row=2, column=2, sticky="w", padx=10, pady=10)
     mas_detalle_btn.bind("<Enter>", lambda event: on_enter(mas_detalle_btn))
     mas_detalle_btn.bind("<Leave>", lambda event: on_leave(mas_detalle_btn))
 
     # Mostrar movimientos en la lista
-    mostrar_movimientos(tree)
+    mostrar_movimientos(tree, label_total_ventas)
 
     root.mainloop()
 
