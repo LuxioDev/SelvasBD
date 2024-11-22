@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 22-11-2024 a las 01:04:04
+-- Tiempo de generación: 22-11-2024 a las 04:01:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -81,33 +81,6 @@ CREATE TABLE `historial_movimientos` (
   `ID_CUPON` int(11) NOT NULL,
   `MPAGO` enum('Efectivo','Tarjeta') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
-
---
--- Volcado de datos para la tabla `historial_movimientos`
---
-
-INSERT INTO `historial_movimientos` (`ID_MOVIMIENTO`, `ID_PRODUCTO`, `ID_SUCURSAL`, `ID_USUARIO`, `TIPO_MOVIMIENTO`, `CANTIDAD`, `FECHA`, `DESCRIPCION`, `ID_CUPON`, `MPAGO`) VALUES
-(5, 3, 2, 1, 'salida', 2, '2024-11-21 22:35:09', 'Venta del producto', 1, 'Efectivo'),
-(6, 3, 2, 1, 'salida', 2, '2024-11-21 22:35:14', 'Venta del producto', 1, 'Tarjeta'),
-(7, 3, 2, 1, 'salida', 2, '2024-11-21 22:35:18', 'Venta del producto', 1, 'Efectivo'),
-(8, 3, 2, 1, 'salida', 2, '2024-11-21 22:35:27', 'Venta del producto', 2, 'Efectivo'),
-(12, 1, 2, 1, 'salida', 1, '2024-11-21 22:50:49', 'Venta del producto', 1, 'Efectivo'),
-(13, 3, 2, 1, 'salida', 1, '2024-11-21 22:50:56', 'Venta del producto', 1, 'Efectivo'),
-(14, 3, 2, 1, 'salida', 1, '2024-11-21 22:50:59', 'Venta del producto', 1, 'Tarjeta'),
-(15, 3, 2, 1, 'salida', 5, '2024-11-21 22:51:37', 'Venta del producto', 1, 'Efectivo'),
-(16, 3, 2, 1, 'salida', 5, '2024-11-21 22:51:41', 'Venta del producto', 1, 'Tarjeta'),
-(17, 1, 2, 1, 'salida', 1, '2024-11-21 23:01:34', 'Venta del producto', 1, 'Efectivo'),
-(18, 1, 2, 1, 'salida', 1, '2024-11-21 23:01:38', 'Venta del producto', 1, 'Tarjeta'),
-(19, 1, 2, 1, 'salida', 1, '2024-11-21 23:04:15', 'Venta del producto', 1, 'Efectivo'),
-(20, 1, 2, 1, 'salida', 1, '2024-11-21 23:04:18', 'Venta del producto', 1, 'Tarjeta'),
-(21, 1, 2, 1, 'salida', 123, '2024-11-21 23:08:00', 'Venta del producto', 1, 'Efectivo'),
-(22, 2, 2, 1, 'salida', 123, '2024-11-21 23:08:06', 'Venta del producto', 1, 'Tarjeta'),
-(23, 1, 2, 1, 'salida', 123, '2024-11-21 23:27:53', 'Venta del producto', 1, 'Efectivo'),
-(24, 2, 2, 1, 'salida', 123, '2024-11-21 23:27:58', 'Venta del producto', 1, 'Tarjeta'),
-(25, 1, 2, 1, 'salida', 123, '2024-11-21 23:29:12', 'Venta del producto', 1, 'Efectivo'),
-(26, 2, 2, 1, 'salida', 123, '2024-11-21 23:29:16', 'Venta del producto', 1, 'Tarjeta'),
-(27, 1, 2, 1, 'salida', 321, '2024-11-21 23:30:11', 'Venta del producto', 1, 'Efectivo'),
-(28, 2, 2, 1, 'salida', 321, '2024-11-21 23:30:15', 'Venta del producto', 1, 'Tarjeta');
 
 -- --------------------------------------------------------
 
@@ -298,10 +271,10 @@ CREATE TABLE `stock` (
 --
 
 INSERT INTO `stock` (`ID_STOCK`, `ID_SUCURSAL`, `ID_PRODUCTO`, `CANTIDAD`) VALUES
-(1, 2, 1, 310),
-(2, 2, 2, 1230541),
-(3, 2, 3, 123123231),
-(4, 2, 4, 32131321),
+(1, 1, 1, 274),
+(2, 2, 2, 1230421),
+(3, 2, 3, 123123176),
+(4, 1, 4, 32131321),
 (5, 2, 5, 0),
 (6, 2, 6, 0),
 (7, 2, 7, 0),
@@ -366,10 +339,10 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`ID_USUARIO`, `NOMBRE`, `APELLIDO`, `USUARIO`, `CONTRASEÑA`, `ID_SUCURSAL`, `ID_PERMISO`) VALUES
-(1, 'Lucas', 'Fernandez', 'luxio', 'admin', 2, 1),
+(1, 'Lucas', 'Fernandez', 'luxio', 'admin', 1, 1),
 (2, 'Josesito', 'Ramirez', 'jose', '123', 2, 2),
 (3, 'Matias', 'Bracale', 'quantum', 'global', 2, 1),
-(4, 'admin', 'admin', 'admin', 'admin', 1, 3),
+(4, 'admin', 'admin', 'admin', 'admin', 2, 3),
 (5, 'Gabriel', 'Dolores', 'ripgabi', 'rawr', 3, 2);
 
 --
@@ -462,7 +435,7 @@ ALTER TABLE `cupones`
 -- AUTO_INCREMENT de la tabla `historial_movimientos`
 --
 ALTER TABLE `historial_movimientos`
-  MODIFY `ID_MOVIMIENTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `ID_MOVIMIENTO` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos`
