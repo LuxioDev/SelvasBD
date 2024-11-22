@@ -24,7 +24,6 @@ def conectar_bd():
         return None
 
 # Función para exportar el historial a Excel
-# Función para exportar el historial a Excel
 def exportar_a_excel(tree):
     id_usuario = usuario_actual.usuario_actual[0]
     sucursal = usuario_actual.usuario_actual[3]
@@ -45,22 +44,17 @@ def exportar_a_excel(tree):
     # Obtener datos del Treeview
     for item in tree.get_children():
         values = tree.item(item, 'values')
-        # Desempaquetar correctamente todos los valores
-        producto, fecha_movimiento, cantidad_str, total_str = values
+        producto, fecha_movimiento, cantidad_str, total_str, descuento, metodo_pago = values
 
         # Convertir cantidad y total a flotantes
         cantidad = float(cantidad_str) if cantidad_str else 0
         total = float(total_str) if total_str else 0
         precio_unitario = total / cantidad if cantidad > 0 else 0  # Cálculo del precio unitario
 
-        # Aquí debes definir cómo obtienes el Descuento y Metodo_Pago
-        Descuento = 0  # Asigna el descuento correspondiente
-        Metodo_Pago = "Efectivo"  # Asigna el método de pago correspondiente
-
         fecha = fecha_movimiento
 
         # Agregar fila al Excel
-        fila = [fecha, id_usuario, sucursal, producto, cantidad, precio_unitario, Descuento, Metodo_Pago, total]
+        fila = [fecha, id_usuario, sucursal, producto, cantidad, precio_unitario, descuento, metodo_pago, total]
         sheet.append(fila)
 
     wb.save(filename)
@@ -74,12 +68,24 @@ def mostrar_movimientos(tree):
         try:
             id_usuario = usuario_actual.usuario_actual[0]
             consulta = """
-                SELECT m.id_movimiento, p.descripcion, m.fecha as fecha_movimiento,
-                       m.cantidad, (m.cantidad * p.precio) as total
-                FROM historial_movimientos m
-                JOIN productos p ON m.id_producto = p.id_producto
-                WHERE m.id_usuario = %s
-                ORDER BY m.fecha DESC
+                SELECT 
+                    m.id_movimiento, 
+                    p.descripcion, 
+                    m.fecha as fecha_movimiento, 
+                    m.cantidad, 
+                    (m.cantidad * p.precio) as total, 
+                    IFNULL(c.descuento, 0) AS descuento,
+                    m.MPAGO
+                FROM 
+                    historial_movimientos m
+                JOIN 
+                    productos p ON m.id_producto = p.id_producto
+                LEFT JOIN 
+                    cupones c ON m.id_cupon = c.id_cupon
+                WHERE 
+                    m.id_usuario = %s
+                ORDER BY 
+                    m.fecha DESC
             """
             cursor.execute(consulta, (id_usuario,))
             movimientos = cursor.fetchall()
@@ -91,10 +97,11 @@ def mostrar_movimientos(tree):
             # Insertar los movimientos en el Treeview
             for movimiento in movimientos:
                 tree.insert("", "end", iid=movimiento[0], values=movimiento[1:])
+
         except mysql.connector.Error as err:
             messagebox.showerror("Error", f"No se pudo obtener el historial de compras: {err}")
         finally:
-            cursor .close()
+            cursor.close()
             conexion.close()
 
 # Función para mostrar detalles de la compra seleccionada

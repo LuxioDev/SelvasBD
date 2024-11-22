@@ -97,10 +97,10 @@ def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, 
         try:
             consulta = """
             INSERT INTO historial_movimientos 
-            (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion) 
-            VALUES (%s, %s, %s, %s, %s, %s)
+            (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion, id_cupon, mpago) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
-            cursor.execute(consulta, (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion))
+            cursor.execute(consulta, (id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion, 1 ,'Efectivo'))
             conexion.commit()
         except mysql.connector.Error as err:
             messagebox.showerror("Error", f"No se pudo registrar el movimiento: {err}")
