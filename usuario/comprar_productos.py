@@ -69,7 +69,7 @@ def actualizar_lista_stock(tree):
         finally:
             cursor.close()
             conexion.close()
-            
+
 
 def registrar_movimiento(id_producto, id_sucursal, id_usuario, tipo_movimiento, cantidad, descripcion, id_cupon, mpago):
     conexion = conectar_bd()
@@ -225,25 +225,11 @@ def ventana_comprar_productos():
     volver_btn = ctk.CTkButton(root, text="Volver", fg_color="white", font=("Helvetica", 12), command=volver_menu_usuario)
     volver_btn.grid(row=0, column=0, stick="w", padx=10, pady=10)
 
-    # Crear un Frame para contener el Treeview y el Scrollbar
-    tree_frame = ctk.CTkFrame(root)
-    tree_frame.grid(row=1, column=0, columnspan=3, padx=20, pady=20)
-
-    # Crear el Scrollbar
-    tree_scroll = ttk.Scrollbar(tree_frame, orient="vertical")
-    tree_scroll.pack(side="right", fill="y")
-
-    # Crear el Treeview y asociarlo al Scrollbar
-    tree = ttk.Treeview(tree_frame, columns=("Producto", "Cantidad", "Precio"), show='headings', height=10, yscrollcommand=tree_scroll.set)
-    tree.pack(side="left", fill="both", expand=True)
-
-    # Configurar el Scrollbar para que funcione con el Treeview
-    tree_scroll.config(command=tree.yview)
-
-    # Configurar encabezados del Treeview
+    tree = ttk.Treeview(root, columns=("Producto", "Cantidad", "Precio"), show='headings', height=10)
     tree.heading("Producto", text="Producto")
     tree.heading("Cantidad", text="Cantidad")
     tree.heading("Precio", text="Precio")
+    tree.grid(row=1, column=0, columnspan=3, padx=20, pady=20)
 
     actualizar_btn = ctk.CTkButton(root, text="Actualizar Lista", command=lambda: actualizar_lista_stock(tree))
     actualizar_btn.grid(row=4, column=2, padx=10, pady=10)
@@ -272,11 +258,8 @@ def ventana_comprar_productos():
     tarjeta_radio = ctk.CTkRadioButton(root, text="Tarjeta +10%", variable=metodo_pago_var, value="Tarjeta")
     tarjeta_radio.grid(row=3, column=2)
 
-    # Cargar los datos en el Treeview
     actualizar_lista_stock(tree)
-
     root.mainloop()
-
 
 if __name__ == "__main__":
     ventana_comprar_productos()
