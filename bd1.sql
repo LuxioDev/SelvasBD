@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-10-2024 a las 19:34:00
+-- Tiempo de generación: 22-11-2024 a las 01:04:04
 -- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -49,7 +49,7 @@ INSERT INTO `categorias` (`ID_CATEGORIA`, `DESCRIPCION`) VALUES
 --
 
 CREATE TABLE `cupones` (
-  `id` int(11) NOT NULL,
+  `ID_CUPON` int(11) NOT NULL,
   `codigo` varchar(5) NOT NULL,
   `descuento` decimal(5,2) NOT NULL,
   `activo` tinyint(1) DEFAULT 1
@@ -59,8 +59,8 @@ CREATE TABLE `cupones` (
 -- Volcado de datos para la tabla `cupones`
 --
 
-INSERT INTO `cupones` (`id`, `codigo`, `descuento`, `activo`) VALUES
-(1, 'omen', 10.00, 1),
+INSERT INTO `cupones` (`ID_CUPON`, `codigo`, `descuento`, `activo`) VALUES
+(1, '', 0.00, 1),
 (2, 'selva', 19.99, 1);
 
 -- --------------------------------------------------------
@@ -77,80 +77,37 @@ CREATE TABLE `historial_movimientos` (
   `TIPO_MOVIMIENTO` enum('entrada','salida') DEFAULT NULL,
   `CANTIDAD` int(11) DEFAULT NULL,
   `FECHA` timestamp NOT NULL DEFAULT current_timestamp(),
-  `DESCRIPCION` varchar(255) DEFAULT NULL
+  `DESCRIPCION` varchar(255) DEFAULT NULL,
+  `ID_CUPON` int(11) NOT NULL,
+  `MPAGO` enum('Efectivo','Tarjeta') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 
 --
 -- Volcado de datos para la tabla `historial_movimientos`
 --
 
-INSERT INTO `historial_movimientos` (`ID_MOVIMIENTO`, `ID_PRODUCTO`, `ID_SUCURSAL`, `ID_USUARIO`, `TIPO_MOVIMIENTO`, `CANTIDAD`, `FECHA`, `DESCRIPCION`) VALUES
-(1, 1, 2, 2, 'entrada', 0, '2024-10-09 15:55:07', 'Producto nuevo añadido con stock inicial de 0'),
-(2, 2, 2, 2, 'entrada', 0, '2024-10-09 15:55:20', 'Producto nuevo añadido con stock inicial de 0'),
-(3, 3, 2, 2, 'entrada', 0, '2024-10-09 15:55:29', 'Producto nuevo añadido con stock inicial de 0'),
-(4, 4, 2, 2, 'entrada', 0, '2024-10-09 15:55:38', 'Producto nuevo añadido con stock inicial de 0'),
-(5, 5, 2, 2, 'entrada', 0, '2024-10-09 15:55:49', 'Producto nuevo añadido con stock inicial de 0'),
-(6, 6, 2, 2, 'entrada', 0, '2024-10-09 15:55:58', 'Producto nuevo añadido con stock inicial de 0'),
-(7, 7, 2, 2, 'entrada', 0, '2024-10-09 15:56:11', 'Producto nuevo añadido con stock inicial de 0'),
-(8, 8, 2, 2, 'entrada', 0, '2024-10-09 15:56:46', 'Producto nuevo añadido con stock inicial de 0'),
-(9, 9, 2, 2, 'entrada', 0, '2024-10-09 15:57:01', 'Producto nuevo añadido con stock inicial de 0'),
-(10, 10, 2, 2, 'entrada', 0, '2024-10-09 15:57:09', 'Producto nuevo añadido con stock inicial de 0'),
-(11, 11, 2, 2, 'entrada', 0, '2024-10-09 15:57:18', 'Producto nuevo añadido con stock inicial de 0'),
-(12, 12, 2, 2, 'entrada', 0, '2024-10-09 15:57:29', 'Producto nuevo añadido con stock inicial de 0'),
-(13, 13, 2, 2, 'entrada', 0, '2024-10-09 15:57:42', 'Producto nuevo añadido con stock inicial de 0'),
-(14, 14, 2, 2, 'entrada', 0, '2024-10-09 15:57:56', 'Producto nuevo añadido con stock inicial de 0'),
-(15, 15, 2, 2, 'entrada', 0, '2024-10-09 15:58:09', 'Producto nuevo añadido con stock inicial de 0'),
-(16, 16, 2, 2, 'entrada', 0, '2024-10-09 15:58:24', 'Producto nuevo añadido con stock inicial de 0'),
-(17, 17, 2, 2, 'entrada', 0, '2024-10-09 15:58:40', 'Producto nuevo añadido con stock inicial de 0'),
-(18, 18, 2, 2, 'entrada', 0, '2024-10-09 15:59:00', 'Producto nuevo añadido con stock inicial de 0'),
-(19, 19, 2, 2, 'entrada', 0, '2024-10-09 15:59:10', 'Producto nuevo añadido con stock inicial de 0'),
-(20, 20, 2, 2, 'entrada', 0, '2024-10-09 15:59:19', 'Producto nuevo añadido con stock inicial de 0'),
-(21, 21, 2, 2, 'entrada', 0, '2024-10-09 15:59:37', 'Producto nuevo añadido con stock inicial de 0'),
-(22, 22, 2, 2, 'entrada', 0, '2024-10-09 15:59:56', 'Producto nuevo añadido con stock inicial de 0'),
-(23, 23, 2, 2, 'entrada', 0, '2024-10-09 16:00:16', 'Producto nuevo añadido con stock inicial de 0'),
-(24, 24, 2, 2, 'entrada', 0, '2024-10-09 16:00:31', 'Producto nuevo añadido con stock inicial de 0'),
-(25, 25, 2, 2, 'entrada', 0, '2024-10-09 16:00:39', 'Producto nuevo añadido con stock inicial de 0'),
-(26, 1, 1, 1, 'salida', 2, '2024-10-22 16:32:28', 'Venta de producto'),
-(27, 1, 1, 1, 'salida', 1, '2024-10-22 16:35:37', 'Venta de producto'),
-(28, 1, 2, 2, 'salida', 2, '2024-10-22 16:53:49', 'Venta de producto'),
-(29, 3, 2, 2, 'salida', 2, '2024-10-22 16:53:57', 'Venta de producto'),
-(30, 3, 2, 2, 'salida', 2, '2024-10-22 16:53:58', 'Venta de producto'),
-(31, 3, 2, 2, 'salida', 2, '2024-10-22 16:54:26', 'Venta de producto'),
-(32, 3, 2, 2, 'salida', 2, '2024-10-22 16:54:33', 'Venta de producto'),
-(33, 3, 2, 2, 'salida', 2, '2024-10-22 16:55:27', 'Venta de producto'),
-(34, 3, 2, 2, 'salida', 3, '2024-10-22 16:55:53', 'Venta de producto'),
-(35, 2, 2, 4, 'entrada', 2, '2024-10-22 16:56:55', 'Se añadió stock de 2 unidades'),
-(36, 3, 2, 2, 'salida', 2, '2024-10-22 18:35:45', 'Venta de producto'),
-(37, 3, 2, 2, 'salida', 3, '2024-10-22 18:35:50', 'Venta de producto'),
-(38, 3, 2, 2, 'salida', 3, '2024-10-22 18:36:28', 'Venta de producto'),
-(39, 1, 2, 2, 'salida', 2, '2024-10-22 18:37:37', 'Venta de producto'),
-(40, 3, 2, 2, 'salida', 2, '2024-10-25 15:07:28', 'Venta de producto'),
-(41, 3, 2, 2, 'salida', 2, '2024-10-25 15:08:26', 'Venta de producto'),
-(42, 3, 2, 2, 'salida', 2, '2024-10-25 15:08:28', 'Venta de producto'),
-(43, 3, 2, 2, 'salida', 2, '2024-10-25 15:08:28', 'Venta de producto'),
-(44, 3, 2, 2, 'salida', 2, '2024-10-25 15:14:00', 'Venta de producto'),
-(45, 3, 2, 2, 'salida', 2, '2024-10-25 15:15:58', 'Venta de producto'),
-(46, 3, 2, 2, 'salida', 2, '2024-10-25 15:17:19', 'Venta de producto'),
-(47, 3, 2, 2, 'salida', 2, '2024-10-25 15:17:27', 'Venta de producto'),
-(48, 3, 2, 2, 'salida', 3, '2024-10-25 15:17:53', 'Venta de producto'),
-(49, 3, 2, 2, 'salida', 3, '2024-10-25 15:18:01', 'Venta de producto'),
-(50, 3, 2, 2, 'salida', 2, '2024-10-25 15:22:27', 'Venta de producto'),
-(51, 3, 2, 2, 'salida', 3, '2024-10-25 15:22:32', 'Venta de producto'),
-(52, 3, 2, 2, 'salida', 4, '2024-10-25 15:22:40', 'Venta de producto'),
-(53, 3, 2, 2, 'salida', 5, '2024-10-25 15:22:47', 'Venta de producto'),
-(54, 2, 2, 1, 'salida', 2, '2024-10-28 15:23:32', 'Se modificó el stock en 2 unidades'),
-(55, 3, 2, 1, 'salida', 2, '2024-10-28 15:23:42', 'Se modificó el stock en 2 unidades'),
-(56, 1, 2, 1, 'salida', 10, '2024-10-28 15:30:03', 'Se modificó el stock en 10 unidades'),
-(57, 1, 2, 1, 'salida', 10, '2024-10-28 15:30:07', 'Se modificó el stock en 10 unidades'),
-(58, 1, 2, 1, 'salida', 10, '2024-10-28 15:30:26', 'Se modificó el stock en 10 unidades'),
-(59, 1, 2, 1, 'salida', 10, '2024-10-28 15:32:11', 'Se modificó el stock en 10 unidades'),
-(60, 1, 2, 3, 'salida', 10, '2024-10-28 15:33:34', 'Se modificó el stock en 10 unidades'),
-(61, 1, 2, 3, 'salida', 10, '2024-10-28 15:34:59', 'Se modificó el stock en 10 unidades'),
-(62, 1, 2, 1, 'salida', 10, '2024-10-28 15:50:26', 'Se modificó el stock en 10 unidades'),
-(63, 1, 2, 1, 'salida', 10, '2024-10-28 15:51:02', 'Se modificó el stock en 10 unidades'),
-(64, 1, 2, 1, 'salida', 10, '2024-10-28 16:00:31', 'Se modificó el stock en 10 unidades'),
-(65, 1, 2, 1, 'salida', 1, '2024-10-28 16:06:59', 'Se modificó el stock en 1 unidades'),
-(66, 1, 2, 1, 'salida', 1, '2024-10-28 16:07:29', 'Se modificó el stock en 1 unidades');
+INSERT INTO `historial_movimientos` (`ID_MOVIMIENTO`, `ID_PRODUCTO`, `ID_SUCURSAL`, `ID_USUARIO`, `TIPO_MOVIMIENTO`, `CANTIDAD`, `FECHA`, `DESCRIPCION`, `ID_CUPON`, `MPAGO`) VALUES
+(5, 3, 2, 1, 'salida', 2, '2024-11-21 22:35:09', 'Venta del producto', 1, 'Efectivo'),
+(6, 3, 2, 1, 'salida', 2, '2024-11-21 22:35:14', 'Venta del producto', 1, 'Tarjeta'),
+(7, 3, 2, 1, 'salida', 2, '2024-11-21 22:35:18', 'Venta del producto', 1, 'Efectivo'),
+(8, 3, 2, 1, 'salida', 2, '2024-11-21 22:35:27', 'Venta del producto', 2, 'Efectivo'),
+(12, 1, 2, 1, 'salida', 1, '2024-11-21 22:50:49', 'Venta del producto', 1, 'Efectivo'),
+(13, 3, 2, 1, 'salida', 1, '2024-11-21 22:50:56', 'Venta del producto', 1, 'Efectivo'),
+(14, 3, 2, 1, 'salida', 1, '2024-11-21 22:50:59', 'Venta del producto', 1, 'Tarjeta'),
+(15, 3, 2, 1, 'salida', 5, '2024-11-21 22:51:37', 'Venta del producto', 1, 'Efectivo'),
+(16, 3, 2, 1, 'salida', 5, '2024-11-21 22:51:41', 'Venta del producto', 1, 'Tarjeta'),
+(17, 1, 2, 1, 'salida', 1, '2024-11-21 23:01:34', 'Venta del producto', 1, 'Efectivo'),
+(18, 1, 2, 1, 'salida', 1, '2024-11-21 23:01:38', 'Venta del producto', 1, 'Tarjeta'),
+(19, 1, 2, 1, 'salida', 1, '2024-11-21 23:04:15', 'Venta del producto', 1, 'Efectivo'),
+(20, 1, 2, 1, 'salida', 1, '2024-11-21 23:04:18', 'Venta del producto', 1, 'Tarjeta'),
+(21, 1, 2, 1, 'salida', 123, '2024-11-21 23:08:00', 'Venta del producto', 1, 'Efectivo'),
+(22, 2, 2, 1, 'salida', 123, '2024-11-21 23:08:06', 'Venta del producto', 1, 'Tarjeta'),
+(23, 1, 2, 1, 'salida', 123, '2024-11-21 23:27:53', 'Venta del producto', 1, 'Efectivo'),
+(24, 2, 2, 1, 'salida', 123, '2024-11-21 23:27:58', 'Venta del producto', 1, 'Tarjeta'),
+(25, 1, 2, 1, 'salida', 123, '2024-11-21 23:29:12', 'Venta del producto', 1, 'Efectivo'),
+(26, 2, 2, 1, 'salida', 123, '2024-11-21 23:29:16', 'Venta del producto', 1, 'Tarjeta'),
+(27, 1, 2, 1, 'salida', 321, '2024-11-21 23:30:11', 'Venta del producto', 1, 'Efectivo'),
+(28, 2, 2, 1, 'salida', 321, '2024-11-21 23:30:15', 'Venta del producto', 1, 'Tarjeta');
 
 -- --------------------------------------------------------
 
@@ -216,7 +173,91 @@ INSERT INTO `productos` (`ID_PRODUCTO`, `DESCRIPCION`, `PRECIO`, `ID_CATEGORIA`,
 (22, 'Chorizo de Cerdo  1kg', 15000, 4, 1, 2),
 (23, 'Morcilla 1kg', 15500, 4, 2, 2),
 (24, 'Chinchulines 1kg', 12500, 4, 2, 2),
-(25, 'Mollejas 1kg', 7500, 4, 1, 2);
+(25, 'Mollejas 1kg', 7500, 4, 1, 2),
+(26, 'T-Bone 1kg', 11000, 1, 1, 3),
+(27, 'Entrecot 1kg', 12500, 1, 1, 3),
+(28, 'Bife Angosto 1kg', 13500, 1, 1, 3),
+(29, 'Bife de lomo 1kg', 15000, 1, 1, 3),
+(30, 'Cuadril 1kg', 10500, 1, 1, 3),
+(31, 'Asado de costilla 1kg', 9500, 1, 1, 3),
+(32, 'Pechito de cerdo 1kg', 8000, 2, 1, 3),
+(33, 'Morcilla 1kg', 3000, 2, 1, 3),
+(34, 'Bondiola de cerdo 1kg', 9500, 2, 1, 3),
+(35, 'Costillas de cerdo 1kg', 7500, 2, 1, 3),
+(36, 'Pechuga de pollo 1kg', 12000, 3, 1, 3),
+(37, 'Muslo de pollo 1kg', 11500, 3, 1, 3),
+(38, 'Alitas de pollo 1kg', 7000, 3, 1, 3),
+(39, 'Pollo entero 1kg', 9500, 3, 1, 3),
+(40, 'Chorizo parrillero 1kg', 6000, 4, 1, 3),
+(41, 'Morcilla parrillera 1kg', 5000, 4, 1, 3),
+(42, 'Mollejas 1kg', 7500, 4, 1, 3),
+(43, 'Riñon 1kg', 6000, 4, 1, 3),
+(44, 'Chinchulines 1kg', 5500, 4, 1, 3),
+(45, 'Matambre 1kg', 10500, 1, 1, 3),
+(46, 'Bife de costilla 1kg', 12500, 1, 1, 3),
+(47, 'Filet de merluza 1kg', 10000, 1, 1, 3),
+(48, 'Cordero 1kg', 18000, 1, 1, 3),
+(49, 'Chorizo de cerdo 1kg', 7000, 2, 1, 3),
+(50, 'Lomo de cerdo 1kg', 9500, 2, 1, 3),
+(51, 'Pechuga de pollo sin hueso 1kg', 12000, 3, 1, 3),
+(52, 'Jamón cocido 1kg', 8000, 2, 1, 3),
+(53, 'Patas de pollo 1kg', 6000, 3, 1, 3),
+(54, 'T-Bone 1kg', 11000, 1, 1, 2),
+(55, 'Entrecot 1kg', 12500, 1, 1, 2),
+(56, 'Bife Angosto 1kg', 13500, 1, 1, 2),
+(57, 'Bife de lomo 1kg', 15000, 1, 1, 2),
+(58, 'Cuadril 1kg', 10500, 1, 1, 2),
+(59, 'Asado de costilla 1kg', 9500, 1, 1, 2),
+(60, 'Pechito de cerdo 1kg', 8000, 2, 1, 2),
+(61, 'Morcilla 1kg', 3000, 2, 1, 2),
+(62, 'Bondiola de cerdo 1kg', 9500, 2, 1, 2),
+(63, 'Costillas de cerdo 1kg', 7500, 2, 1, 2),
+(64, 'Pechuga de pollo 1kg', 12000, 3, 1, 2),
+(65, 'Muslo de pollo 1kg', 11500, 3, 1, 2),
+(66, 'Alitas de pollo 1kg', 7000, 3, 1, 2),
+(67, 'Pollo entero 1kg', 9500, 3, 1, 2),
+(68, 'Chorizo parrillero 1kg', 6000, 4, 1, 2),
+(69, 'Morcilla parrillera 1kg', 5000, 4, 1, 2),
+(70, 'Mollejas 1kg', 7500, 4, 1, 2),
+(71, 'Riñon 1kg', 6000, 4, 1, 2),
+(72, 'Chinchulines 1kg', 5500, 4, 1, 2),
+(73, 'Matambre 1kg', 10500, 1, 1, 2),
+(74, 'Bife de costilla 1kg', 12500, 1, 1, 2),
+(75, 'Filet de merluza 1kg', 10000, 1, 1, 2),
+(76, 'Cordero 1kg', 18000, 1, 1, 2),
+(77, 'Chorizo de cerdo 1kg', 7000, 2, 1, 2),
+(78, 'Lomo de cerdo 1kg', 9500, 2, 1, 2),
+(79, 'Pechuga de pollo sin hueso 1kg', 12000, 3, 1, 2),
+(80, 'Jamón cocido 1kg', 8000, 2, 1, 2),
+(81, 'Patas de pollo 1kg', 6000, 3, 1, 2),
+(82, 'T-Bone 1kg', 11000, 1, 1, 1),
+(83, 'Entrecot 1kg', 12500, 1, 1, 1),
+(84, 'Bife Angosto 1kg', 13500, 1, 1, 1),
+(85, 'Bife de lomo 1kg', 15000, 1, 1, 1),
+(86, 'Cuadril 1kg', 10500, 1, 1, 1),
+(87, 'Asado de costilla 1kg', 9500, 1, 1, 1),
+(88, 'Pechito de cerdo 1kg', 8000, 2, 1, 1),
+(89, 'Morcilla 1kg', 3000, 2, 1, 1),
+(90, 'Bondiola de cerdo 1kg', 9500, 2, 1, 1),
+(91, 'Costillas de cerdo 1kg', 7500, 2, 1, 1),
+(92, 'Pechuga de pollo 1kg', 12000, 3, 1, 1),
+(93, 'Muslo de pollo 1kg', 11500, 3, 1, 1),
+(94, 'Alitas de pollo 1kg', 7000, 3, 1, 1),
+(95, 'Pollo entero 1kg', 9500, 3, 1, 1),
+(96, 'Chorizo parrillero 1kg', 6000, 4, 1, 1),
+(97, 'Morcilla parrillera 1kg', 5000, 4, 1, 1),
+(98, 'Mollejas 1kg', 7500, 4, 1, 1),
+(99, 'Riñon 1kg', 6000, 4, 1, 1),
+(100, 'Chinchulines 1kg', 5500, 4, 1, 1),
+(101, 'Matambre 1kg', 10500, 1, 1, 1),
+(102, 'Bife de costilla 1kg', 12500, 1, 1, 1),
+(103, 'Filet de merluza 1kg', 10000, 1, 1, 1),
+(104, 'Cordero 1kg', 18000, 1, 1, 1),
+(105, 'Chorizo de cerdo 1kg', 7000, 2, 1, 1),
+(106, 'Lomo de cerdo 1kg', 9500, 2, 1, 1),
+(107, 'Pechuga de pollo sin hueso 1kg', 12000, 3, 1, 1),
+(108, 'Jamón cocido 1kg', 8000, 2, 1, 1),
+(109, 'Patas de pollo 1kg', 6000, 3, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -257,10 +298,10 @@ CREATE TABLE `stock` (
 --
 
 INSERT INTO `stock` (`ID_STOCK`, `ID_SUCURSAL`, `ID_PRODUCTO`, `CANTIDAD`) VALUES
-(1, 2, 1, 8),
-(2, 2, 2, 0),
-(3, 2, 3, 29),
-(4, 2, 4, 0),
+(1, 2, 1, 310),
+(2, 2, 2, 1230541),
+(3, 2, 3, 123123231),
+(4, 2, 4, 32131321),
 (5, 2, 5, 0),
 (6, 2, 6, 0),
 (7, 2, 7, 0),
@@ -325,7 +366,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`ID_USUARIO`, `NOMBRE`, `APELLIDO`, `USUARIO`, `CONTRASEÑA`, `ID_SUCURSAL`, `ID_PERMISO`) VALUES
-(1, 'Lucas', 'Fernandez', 'luxio', 'admin', 1, 1),
+(1, 'Lucas', 'Fernandez', 'luxio', 'admin', 2, 1),
 (2, 'Josesito', 'Ramirez', 'jose', '123', 2, 2),
 (3, 'Matias', 'Bracale', 'quantum', 'global', 2, 1),
 (4, 'admin', 'admin', 'admin', 'admin', 1, 3),
@@ -345,7 +386,7 @@ ALTER TABLE `categorias`
 -- Indices de la tabla `cupones`
 --
 ALTER TABLE `cupones`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`ID_CUPON`),
   ADD UNIQUE KEY `codigo` (`codigo`);
 
 --
@@ -355,7 +396,8 @@ ALTER TABLE `historial_movimientos`
   ADD PRIMARY KEY (`ID_MOVIMIENTO`),
   ADD KEY `ID_PRODUCTO` (`ID_PRODUCTO`),
   ADD KEY `ID_SUCURSAL` (`ID_SUCURSAL`),
-  ADD KEY `ID_USUARIO` (`ID_USUARIO`);
+  ADD KEY `ID_USUARIO` (`ID_USUARIO`),
+  ADD KEY `historia_movimientos_ibfk_4` (`ID_CUPON`);
 
 --
 -- Indices de la tabla `permisos`
@@ -414,13 +456,13 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de la tabla `cupones`
 --
 ALTER TABLE `cupones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ID_CUPON` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `historial_movimientos`
 --
 ALTER TABLE `historial_movimientos`
-  MODIFY `ID_MOVIMIENTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `ID_MOVIMIENTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos`
@@ -432,7 +474,7 @@ ALTER TABLE `permisos`
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `ID_PRODUCTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `ID_PRODUCTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedores`
@@ -466,6 +508,7 @@ ALTER TABLE `usuarios`
 -- Filtros para la tabla `historial_movimientos`
 --
 ALTER TABLE `historial_movimientos`
+  ADD CONSTRAINT `historia_movimientos_ibfk_4` FOREIGN KEY (`ID_CUPON`) REFERENCES `cupones` (`ID_CUPON`),
   ADD CONSTRAINT `historial_movimientos_ibfk_1` FOREIGN KEY (`ID_PRODUCTO`) REFERENCES `productos` (`ID_PRODUCTO`),
   ADD CONSTRAINT `historial_movimientos_ibfk_2` FOREIGN KEY (`ID_SUCURSAL`) REFERENCES `sucursales` (`ID_SUCURSAL`),
   ADD CONSTRAINT `historial_movimientos_ibfk_3` FOREIGN KEY (`ID_USUARIO`) REFERENCES `usuarios` (`ID_USUARIO`);
